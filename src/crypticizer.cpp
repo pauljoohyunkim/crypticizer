@@ -4,6 +4,7 @@
 #include <filesystem>
 #include "crypticizer.h"
 #include "session.h"
+#include "errorcodes.h"
 
 namespace fs = std::filesystem;
 
@@ -52,7 +53,7 @@ static void detectSession(Session& session)
                       << crypticizierDirectory
                       << " directory. Make sure you have permission."
                       << std::endl;
-            exit(2);
+            exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
     }
 }

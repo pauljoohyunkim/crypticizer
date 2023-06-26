@@ -1,0 +1,6 @@
+#ifndef ERRORCODES_H
+#define ERRORCODES_H
+
+#define CANNOT_CREATE_CRYPTICIZER_DIRECTORY 2
+
+#endif
