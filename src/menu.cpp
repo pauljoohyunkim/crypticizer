@@ -18,12 +18,17 @@ WindowManager::~WindowManager()
 unsigned int WindowManager::createWindow(unsigned int height,
         unsigned int width,
         unsigned int start_y,
-        unsigned start_x)
+        unsigned start_x, bool boxed)
 {
     WINDOW* win = newwin(height, width, start_y, start_x);
     unsigned int index = windows.size();
 
     windows.push_back(win);
+
+    if (boxed)
+    {
+        box(win, 0, 0);
+    }
     return index;
 }
 

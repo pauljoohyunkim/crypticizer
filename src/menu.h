@@ -16,12 +16,11 @@ class WindowManager
         unsigned int createWindow(unsigned int height,
                 unsigned int width,
                 unsigned int start_y,
-                unsigned start_x);
+                unsigned start_x, bool boxed=true);
 
         // Getter for window
         WINDOW* operator[] (unsigned int index);
     private:
-
         std::vector<WINDOW*> windows {};
 };
 
