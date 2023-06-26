@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <filesystem>
 #include "crypticizer.h"
@@ -33,12 +34,25 @@ int main(int argc, char** argv)
 // If there exists .crypticizer directory,
 static void detectSession(Session& session)
 {
-    auto cwd = fs::current_path();
-    auto crypticizierDirectory = cwd/fs::path(CRYPTICIZER);
+    auto cwd { fs::current_path() };
+    auto crypticizierDirectory { cwd/fs::path(CRYPTICIZER) };
 
     // Check for .crypticizer directory in the CWD
-    if(fs::exists(crypticizierDirectory))
+    if (fs::exists(crypticizierDirectory))
     {
         session.setSessionPath(cwd);
+    }
+    else
+    {
+        // If not, create the .crypticizer directory in CWD
+        // If this fails, halt the program.
+        if (!fs::create_directory(crypticizierDirectory))
+        {
+            std::cerr << "Error: Could not create "
+                      << crypticizierDirectory
+                      << " directory. Make sure you have permission."
+                      << std::endl;
+            exit(2);
+        }
     }
 }
