@@ -57,6 +57,7 @@ void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> 
     // there might be exceedingly many and long entries.
     unsigned int x, y;
     getmaxyx(win, y, x);
+    //unsigned int rownumLeft;
 
     // Write entries
     for (unsigned int rownum = 1; rownum <= entries.size(); rownum++)
@@ -69,8 +70,9 @@ void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> 
         {
             wattroff(win, A_STANDOUT);
         }
+        // Truncate the entry to show if it is too long for the box.
         auto entry { entries[rownum-1] };
-        auto entryView { entry.substr(0, std::min((int) entry.length(), (int) x) - 2) };
+        auto entryView { entry.substr(0, std::min<unsigned int>(entry.length(), x) - 2) };
         mvwprintw(win, rownum, 1, entryView.c_str());
     }
 
