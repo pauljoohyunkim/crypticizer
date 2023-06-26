@@ -4,14 +4,20 @@
 
 int main()
 {
-    std::vector<std::string> entries = { "entry 1", "entry 2", "entry 3" };
+    std::vector<std::string> entries = { "1 entry",
+                                         "2 entry",
+                                         "3 entry",
+                                         "4 entry",
+                                         "5 entry",
+                                         "6 entry"
+                                       };
     keypad(stdscr, TRUE);
 
     // Window Manager
     WindowManager wm;
 
     // First window
-    auto winIndex = wm.createWindow(10, 6, 10, 10);
+    auto winIndex = wm.createWindow(5, 6, 45, 0);
 
     // Menu
     Menu menu { wm[0] };

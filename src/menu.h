@@ -34,7 +34,7 @@ class WindowManager
 class Menu
 {
     public:
-        Menu(WINDOW* awin);
+        Menu(WINDOW* awin, bool aboxed=true);
 
         void updateEntry(std::vector<std::string> aentries);
         void draw();
@@ -43,7 +43,13 @@ class Menu
 
     private:
         WINDOW* win;
+        // Dimension of the terminal
+        unsigned int x;
+        unsigned int y;
         int entryIndex { 0 };
+        unsigned int entryIndexMin { 0 };
+        unsigned int entryIndexMax { 0 };
+        bool boxed { true };
         std::vector<std::string> entries {};
 
 };
