@@ -124,7 +124,7 @@ void Menu::draw()
     {
         auto rownum = index - entryIndexMin + 1;
         //if ((int) rownum - 1 == (int) entryIndex)
-        if (rownum == (entryIndex + 1) % (unsigned int) (y-2))
+        if (index == entryIndex)
         {
             wattron(win, A_STANDOUT);
         }
