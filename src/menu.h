@@ -12,12 +12,12 @@ class WindowManager
         WindowManager();
         // Ends ncurses
         ~WindowManager();
-    private:
         // Creates window and returns the index.
         unsigned int createWindow(unsigned int height,
                 unsigned int width,
                 unsigned int start_y,
                 unsigned start_x);
+    private:
 
         std::vector<WINDOW*> windows {};
 };
