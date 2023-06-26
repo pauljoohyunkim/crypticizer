@@ -7,7 +7,14 @@ int main()
     wrefresh(wm[i]);
     getch();
 
-    auto win =  wm[0];
+    //auto win =  wm[0];
+
+    //unsigned int x;
+    //unsigned int y;
+
+    //wm.getTerminalSize(y, x);
+
+    //endwin();
 
     return 0;
 }

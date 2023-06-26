@@ -20,6 +20,9 @@ class WindowManager
 
         // Getter for window
         WINDOW* operator[] (unsigned int index);
+
+        // Get Terminal Size
+        void getTerminalSize(unsigned int& y, unsigned int& x);
     private:
         std::vector<WINDOW*> windows {};
 };

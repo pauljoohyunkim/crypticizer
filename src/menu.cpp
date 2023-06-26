@@ -1,5 +1,6 @@
 #include "menu.h"
 #include <vector>
+#include <iostream>
 #include <ncurses.h>
 #include <memory>
 
@@ -13,6 +14,7 @@ WindowManager::WindowManager()
 
 WindowManager::~WindowManager()
 {
+    std::cout << "Calling destructor" << std::endl;
     endwin();
 }
 
@@ -36,4 +38,9 @@ unsigned int WindowManager::createWindow(unsigned int height,
 WINDOW* WindowManager::operator[](unsigned int index)
 {
     return windows[index];
+}
+
+void WindowManager::getTerminalSize(unsigned int& y, unsigned int& x)
+{
+    getmaxyx(stdscr, y, x);
 }
