@@ -26,3 +26,8 @@ unsigned int WindowManager::createWindow(unsigned int height,
     windows.push_back(win);
     return index;
 }
+
+WINDOW* WindowManager::operator[](unsigned int index)
+{
+    return windows[index];
+}

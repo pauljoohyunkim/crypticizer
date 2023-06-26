@@ -17,6 +17,9 @@ class WindowManager
                 unsigned int width,
                 unsigned int start_y,
                 unsigned start_x);
+
+        // Getter for window
+        WINDOW* operator[] (unsigned int index);
     private:
 
         std::vector<WINDOW*> windows {};
