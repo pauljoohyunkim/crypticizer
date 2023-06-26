@@ -67,5 +67,6 @@ static void detectSession(Session& session, fs::path rootdir)
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
+        session.setSessionPath(rootdir);
     }
 }
