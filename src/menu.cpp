@@ -164,7 +164,7 @@ void Menu::highlightPreviousEntry()
 {
     getmaxyx(win, y, x);
     auto num_of_entries_in_menu = y - 2;
-    // Only if there is the next element.
+    // Only if there is the previous element.
     if (entryIndex > 0)
     {
         entryIndex--;
