@@ -6,12 +6,12 @@
 class Session
 {
     public:
-        Session(std::string asessionName)
+        Session(std::string asessionPath)
         {
-            sessionName = asessionName;
+            sessionPath = asessionPath;
         }
     private:
-        std::string sessionName {};
+        std::string sessionPath {};
 
 };
 
