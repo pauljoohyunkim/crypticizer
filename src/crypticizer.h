@@ -3,4 +3,6 @@
 
 #define CRYPTICIZER ".crypticizer"
 
+extern Session crypticizerSession;
+
 #endif
