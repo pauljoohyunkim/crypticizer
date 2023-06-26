@@ -40,6 +40,7 @@ class Menu
         void draw();
         void highlightNextEntry();
         void highlightPreviousEntry();
+        unsigned int getEntryIndex();
 
     private:
         WINDOW* win;

@@ -114,7 +114,7 @@ void Menu::draw()
     auto entrySize { entries.size() };
     int entrySizeInt { (int) entrySize };
     entryIndex = (entryIndex % entrySizeInt + entrySizeInt) % entrySizeInt;
-    printw("entryIndex: %d\t in [%d, %d]\t y:%d\n", entryIndex, entryIndexMin, entryIndexMax, y);
+    //printw("entryIndex: %d\t in [%d, %d]\t y:%d\n", entryIndex, entryIndexMin, entryIndexMax, y);
     // Get dimension of the window for the case that
     // there might be exceedingly many and long entries.
     getmaxyx(win, y, x);
@@ -173,3 +173,9 @@ void Menu::highlightPreviousEntry()
     }
     
 }
+
+unsigned int Menu::getEntryIndex()
+{
+    return entryIndex;
+}
+

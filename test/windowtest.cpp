@@ -39,6 +39,10 @@ int main()
             menu.highlightPreviousEntry();
             menu.draw();
         }
+        else if (c == '\n')
+        {
+            printw("%d\n", menu.getEntryIndex());
+        }
         else if (c == 'q')
         {
             break;
