@@ -2,16 +2,18 @@
 #define SESSION_H
 
 #include <string>
+#include <filesystem>
 
 class Session
 {
     public:
-        Session(std::string asessionPath)
+        // Setter
+        void setSessionPath(std::filesystem::path path)
         {
-            sessionPath = asessionPath;
+            sessionPath = path;
         }
     private:
-        std::string sessionPath {};
+        std::filesystem::path sessionPath {};
 
 };
 
