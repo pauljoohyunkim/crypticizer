@@ -47,11 +47,23 @@ void WindowManager::getTerminalSize(unsigned int& y, unsigned int& x)
     getmaxyx(stdscr, y, x);
 }
 
-void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> entries, int entryIndex)
+void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> entries, bool inc)
 {
     auto entrySize { entries.size() };
+    static int entryIndex { -1 };
+    if (inc)
+    {
+        entryIndex++;
+    }
+    else
+    {
+        entryIndex--;
+    }
     entryIndex = (entryIndex % entrySize + entrySize) % entrySize;
     auto win { windows[windowindex] };
+
+    // DEBUG
+    printw("%d", entryIndex);
 
     // Get dimension of the window for the case that
     // there might be exceedingly many and long entries.

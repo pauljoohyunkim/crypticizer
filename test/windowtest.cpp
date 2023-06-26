@@ -19,19 +19,20 @@ int main()
     auto entryIndex = 0;
     while (auto c = getch())
     {
+        bool inc;
         if (c == 'j')
         {
-            entryIndex++;
+            inc = true;
         }
         else if (c == 'k')
         {
-            entryIndex--;
+            inc = false;
         }
         else if (c == 'q')
         {
             break;
         }
-        wm.makeMenu(winIndex, entries, entryIndex);
+        wm.makeMenu(winIndex, entries, inc);
     }
     
 
