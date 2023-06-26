@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <ncurses.h>
+#include <algorithm>
 #include <string>
 
 WindowManager::WindowManager()
@@ -52,6 +53,11 @@ void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> 
     entryIndex = (entryIndex % entrySize + entrySize) % entrySize;
     auto win { windows[windowindex] };
 
+    // Get dimension of the window for the case that
+    // there might be exceedingly many and long entries.
+    unsigned int x, y;
+    getmaxyx(win, y, x);
+
     // Write entries
     for (unsigned int rownum = 1; rownum <= entries.size(); rownum++)
     {
@@ -63,7 +69,9 @@ void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> 
         {
             wattroff(win, A_STANDOUT);
         }
-        mvwprintw(win, rownum, 1, entries[rownum-1].c_str());
+        auto entry { entries[rownum-1] };
+        auto entryView { entry.substr(0, std::min((int) entry.length(), (int) x) - 2) };
+        mvwprintw(win, rownum, 1, entryView.c_str());
     }
 
     wrefresh(win);

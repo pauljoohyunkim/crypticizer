@@ -11,7 +11,7 @@ int main()
     WindowManager wm;
 
     // First window
-    auto winIndex = wm.createWindow(0, 0, 10, 10);
+    auto winIndex = wm.createWindow(10, 6, 10, 10);
     //wrefresh(wm[winIndex]);
 
 
