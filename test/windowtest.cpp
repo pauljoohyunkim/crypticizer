@@ -17,7 +17,7 @@ int main()
     WindowManager wm;
 
     // First window
-    auto winIndex = wm.createWindow(5, 6, 45, 0);
+    auto winIndex = wm.createWindow(6, 6, 10, 0);
 
     // Menu
     Menu menu { wm[0] };

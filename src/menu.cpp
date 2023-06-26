@@ -169,7 +169,7 @@ void Menu::highlightPreviousEntry()
     {
         entryIndex--;
         entryIndexMin = (entryIndex / num_of_entries_in_menu) * num_of_entries_in_menu;
-        entryIndexMax = std::max<unsigned int>(0, entryIndexMin + num_of_entries_in_menu - 1);
+        entryIndexMax = std::min<unsigned int>(entries.size() - 1, entryIndexMin + num_of_entries_in_menu - 1);
     }
     
 }
