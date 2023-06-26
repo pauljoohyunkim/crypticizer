@@ -46,10 +46,21 @@ void WindowManager::getTerminalSize(unsigned int& y, unsigned int& x)
     getmaxyx(stdscr, y, x);
 }
 
-void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> entries)
+void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> entries, int entryIndex)
 {
+    auto entrySize { entries.size() };
+    entryIndex = (entryIndex % entrySize + entrySize) % entrySize;
+    // Write entries
     for (unsigned int rownum = 1; rownum <= entries.size(); rownum++)
     {
+        if ((int) rownum - 1 == entryIndex)
+        {
+            wattron(windows[windowindex], A_STANDOUT);
+        }
+        else
+        {
+            wattroff(windows[windowindex], A_STANDOUT);
+        }
         mvwprintw(windows[windowindex], rownum, 1, entries[rownum-1].c_str());
     }
 

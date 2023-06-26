@@ -19,7 +19,7 @@ class WindowManager
                 unsigned start_x, bool boxed=true);
 
         // Write menu onto a blank window
-        void makeMenu(unsigned int windowindex, std::vector<std::string> entries);
+        void makeMenu(unsigned int windowindex, std::vector<std::string> entries, int entryIndex);
 
         // Getter for window
         WINDOW* operator[] (unsigned int index);

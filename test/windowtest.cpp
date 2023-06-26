@@ -5,6 +5,7 @@
 int main()
 {
     std::vector<std::string> entries = { "entry 1", "entry 2", "entry 3" };
+    keypad(stdscr, TRUE);
 
     // Window Manager
     WindowManager wm;
@@ -15,9 +16,24 @@ int main()
 
 
     // Menu Item
-    //
-    wm.makeMenu(winIndex, entries);
-    getch();
+    auto entryIndex = 0;
+    while (auto c = getch())
+    {
+        if (c == 'j')
+        {
+            entryIndex++;
+        }
+        else if (c == 'k')
+        {
+            entryIndex--;
+        }
+        else if (c == 'q')
+        {
+            break;
+        }
+        wm.makeMenu(winIndex, entries, entryIndex);
+    }
+    
 
     endwin();
 
