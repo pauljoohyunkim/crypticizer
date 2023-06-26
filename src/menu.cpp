@@ -8,6 +8,7 @@ WindowManager::WindowManager()
     initscr();
     raw();
     noecho();
+    refresh();
 }
 
 WindowManager::~WindowManager()

@@ -4,7 +4,6 @@ int main()
 {
     WindowManager wm;
     auto i = wm.createWindow(0, 0, 10, 10);
-    refresh();
     wrefresh(wm[i]);
     getch();
 
