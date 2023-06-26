@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <ncurses.h>
-#include <memory>
+#include <string>
 
 class WindowManager
 {
@@ -17,6 +17,9 @@ class WindowManager
                 unsigned int width,
                 unsigned int start_y,
                 unsigned start_x, bool boxed=true);
+
+        // Write menu onto a blank window
+        void makeMenu(unsigned int windowindex, std::vector<std::string> entries);
 
         // Getter for window
         WINDOW* operator[] (unsigned int index);
