@@ -50,19 +50,21 @@ void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> 
 {
     auto entrySize { entries.size() };
     entryIndex = (entryIndex % entrySize + entrySize) % entrySize;
+    auto win { windows[windowindex] };
+
     // Write entries
     for (unsigned int rownum = 1; rownum <= entries.size(); rownum++)
     {
         if ((int) rownum - 1 == entryIndex)
         {
-            wattron(windows[windowindex], A_STANDOUT);
+            wattron(win, A_STANDOUT);
         }
         else
         {
-            wattroff(windows[windowindex], A_STANDOUT);
+            wattroff(win, A_STANDOUT);
         }
-        mvwprintw(windows[windowindex], rownum, 1, entries[rownum-1].c_str());
+        mvwprintw(win, rownum, 1, entries[rownum-1].c_str());
     }
 
-    wrefresh(windows[windowindex]);
+    wrefresh(win);
 }
