@@ -12,27 +12,31 @@ int main()
 
     // First window
     auto winIndex = wm.createWindow(10, 6, 10, 10);
+
+    // Menu
+    Menu menu { wm[0] };
+    menu.updateEntry(entries);
     //wrefresh(wm[winIndex]);
 
 
     // Menu Item
-    auto entryIndex = 0;
     while (auto c = getch())
     {
         bool inc;
         if (c == 'j')
         {
-            inc = true;
+            menu.highlightNextEntry();
+            menu.draw();
         }
         else if (c == 'k')
         {
-            inc = false;
+            menu.highlightPreviousEntry();
+            menu.draw();
         }
         else if (c == 'q')
         {
             break;
         }
-        wm.makeMenu(winIndex, entries, inc);
     }
     
 

@@ -20,7 +20,7 @@ class WindowManager
 
         // Write menu onto a blank window (inc=true means the next time called,
         // entryIndex is incremented, otherwise decremented.
-        void makeMenu(unsigned int windowindex, std::vector<std::string> entries, bool inc=true);
+        //void makeMenu(unsigned int windowindex, std::vector<std::string> entries, bool inc=true);
 
         // Getter for window
         WINDOW* operator[] (unsigned int index);
@@ -29,6 +29,23 @@ class WindowManager
         void getTerminalSize(unsigned int& y, unsigned int& x);
     private:
         std::vector<WINDOW*> windows {};
+};
+
+class Menu
+{
+    public:
+        Menu(WINDOW* awin);
+
+        void updateEntry(std::vector<std::string> aentries);
+        void draw();
+        void highlightNextEntry();
+        void highlightPreviousEntry();
+
+    private:
+        WINDOW* win;
+        int entryIndex { 0 };
+        std::vector<std::string> entries {};
+
 };
 
 #endif

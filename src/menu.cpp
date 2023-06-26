@@ -47,6 +47,7 @@ void WindowManager::getTerminalSize(unsigned int& y, unsigned int& x)
     getmaxyx(stdscr, y, x);
 }
 
+/*
 void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> entries, bool inc)
 {
     auto entrySize { entries.size() };
@@ -89,4 +90,56 @@ void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> 
     }
 
     wrefresh(win);
+}
+*/
+
+Menu::Menu(WINDOW* awin)
+{
+    win = awin;
+}
+
+void Menu::updateEntry(std::vector<std::string> aentries)
+{
+    entries = aentries;
+}
+
+void Menu::draw()
+{
+    auto entrySize { entries.size() };
+    int entrySizeInt { (int) entrySize };
+    entryIndex = (entryIndex % entrySizeInt + entrySizeInt) % entrySizeInt;
+    //printw("%d", entryIndex);
+    // Get dimension of the window for the case that
+    // there might be exceedingly many and long entries.
+    unsigned int x, y;
+    getmaxyx(win, y, x);
+    
+    // Write entries
+    for (unsigned int rownum = 1; rownum <= entries.size(); rownum++)
+    {
+        if ((int) rownum - 1 == entryIndex)
+        {
+            wattron(win, A_STANDOUT);
+        }
+        else
+        {
+            wattroff(win, A_STANDOUT);
+        }
+        // Truncate the entry to show if it is too long for the box.
+        auto entry { entries[rownum-1] };
+        auto entryView { entry.substr(0, std::min<unsigned int>(entry.length(), x) - 2) };
+        mvwprintw(win, rownum, 1, entryView.c_str());
+    }
+
+    wrefresh(win);
+}
+
+void Menu::highlightNextEntry()
+{
+    entryIndex++;
+}
+
+void Menu::highlightPreviousEntry()
+{
+    entryIndex--;
 }
