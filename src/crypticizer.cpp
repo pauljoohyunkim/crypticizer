@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <filesystem>
+#include <unistd.h>
 #include "crypticizer.h"
 #include "session.h"
 #include "errorcodes.h"
