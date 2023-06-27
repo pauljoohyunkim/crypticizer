@@ -4,35 +4,49 @@
 
 int main()
 {
-    std::vector<std::string> entries = { "entry 1", "entry 2", "entry 3" };
+    std::vector<std::string> entries = { "1 entry",
+                                         "2 entry",
+                                         "3 entry",
+                                         "4 entry",
+                                         "5 entry",
+                                         "6 entry"
+                                       };
     keypad(stdscr, TRUE);
 
     // Window Manager
     WindowManager wm;
 
     // First window
-    auto winIndex = wm.createWindow(10, 6, 10, 10);
+    auto winIndex = wm.createWindow(6, 6, 10, 0);
+
+    // Menu
+    Menu menu { wm[0] };
+    menu.updateEntry(entries);
     //wrefresh(wm[winIndex]);
 
 
     // Menu Item
-    auto entryIndex = 0;
     while (auto c = getch())
     {
         bool inc;
         if (c == 'j')
         {
-            inc = true;
+            menu.highlightNextEntry();
+            menu.draw();
         }
         else if (c == 'k')
         {
-            inc = false;
+            menu.highlightPreviousEntry();
+            menu.draw();
+        }
+        else if (c == '\n')
+        {
+            printw("%d\n", menu.getEntryIndex());
         }
         else if (c == 'q')
         {
             break;
         }
-        wm.makeMenu(winIndex, entries, inc);
     }
     
 
