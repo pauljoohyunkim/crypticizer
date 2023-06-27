@@ -76,5 +76,5 @@ static void detectSession(Session& session, fs::path rootdir)
 
 static void menuLaunch(Session& session)
 {
-    
+    auto rootdir { session.getSessionPath() };
 }
