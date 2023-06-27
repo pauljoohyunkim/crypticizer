@@ -36,6 +36,8 @@ int main(int argc, char** argv)
         detectSession(crypticizerSession, fs::current_path());
     }
 
+    menuLaunch(crypticizerSession);
+
     return EXIT_SUCCESS;
 }
 
@@ -77,4 +79,8 @@ static void detectSession(Session& session, fs::path rootdir)
 static void menuLaunch(Session& session)
 {
     auto rootdir { session.getSessionPath() };
+    for (auto filepath : fs::directory_iterator{rootdir})
+    {
+        std::cout << filepath << std::endl;
+    }
 }
