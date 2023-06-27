@@ -14,6 +14,7 @@ class Session
         }
     private:
         std::filesystem::path sessionPath {};
+        std::vector<std::string> logfilenames {};
 
 };
 

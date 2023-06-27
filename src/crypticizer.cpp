@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <unistd.h>
+#include <regex>
 #include "crypticizer.h"
 #include "session.h"
 #include "errorcodes.h"
@@ -10,6 +11,7 @@
 namespace fs = std::filesystem;
 
 static void detectSession(Session& session, fs::path rootdir);
+static void menuLaunch(Session& session);
 
 Session crypticizerSession {};
 
@@ -70,4 +72,9 @@ static void detectSession(Session& session, fs::path rootdir)
         }
         session.setSessionPath(rootdir);
     }
+}
+
+static void menuLaunch(Session& session)
+{
+    
 }
