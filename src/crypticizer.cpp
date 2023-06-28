@@ -175,13 +175,14 @@ static void launchSession(Session& session)
 
 static void launchEditor(std::string textEditorProgram, std::string filename)
 {
+
     // Fork and exec to create child process to the text editor.
     auto pid { fork() };
 
     if (pid == 0)
     {
         // Child
-        execlp(textEditorProgram.c_str(), filename.c_str(), NULL);
+        execlp(textEditorProgram.c_str(), textEditorProgram.c_str(), filename.c_str(), NULL);
     }
     else if (pid > 0)
     {
