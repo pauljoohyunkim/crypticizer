@@ -160,7 +160,6 @@ static void launchSession(Session& session)
         }
         else if (c == '\n')
         {
-            printw("%d", menu.getEntryIndex());
             std::string textEditor { "vim" };
             std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
             launchEditor(textEditor, filename);
