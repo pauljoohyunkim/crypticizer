@@ -120,22 +120,22 @@ static void launchSession(Session& session)
     }
     menu.updateEntry(menuEntries);
     menu.draw();
-    getch();
-    //auto c = getch();
-    //while (true)
-    //{
-    //    if (c == 'q')
-    //    {
-    //        break;
-    //    }
-    //    else if (c == 'j')
-    //    {
-    //        menu.highlightNextEntry();
-    //    }
-    //    else if (c == 'k')
-    //    {
-    //        menu.highlightPreviousEntry();
-    //    }
-    //    menu.draw();
-    //}
+    auto c = getch();
+    while (true)
+    {
+        if (c == 'q')
+        {
+            break;
+        }
+        else if (c == 'j')
+        {
+            menu.highlightNextEntry();
+        }
+        else if (c == 'k')
+        {
+            menu.highlightPreviousEntry();
+        }
+        menu.draw();
+        c = getch();
+    }
 }
