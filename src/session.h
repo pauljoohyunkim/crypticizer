@@ -22,7 +22,7 @@ class Session
         //void addLog(std::filesystem::path p, std::time_t timer);
     private:
         // Ordering
-        //void orderLogs();
+        void orderLogs();
 
         std::filesystem::path sessionPath {};
         std::vector<Log> logs {};

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "session.h"
 
-//static bool logCompare(std::filesystem::path p1, std::filesystem::path p2);
+static bool logCompare(Log log1, Log log2);
 
 void Session::setSessionPath(std::filesystem::path path)
 {
@@ -19,21 +19,21 @@ void Session::addLog(std::filesystem::path p)
 {
     Log log { p };
     logs.push_back(p);
-    //orderLogs();
+    orderLogs();
 }
 
-//void Session::orderLogs()
-//{
-//    std::sort(logs.begin(), logs.end(), logCompare);
-//}
+void Session::orderLogs()
+{
+    std::sort(logs.begin(), logs.end(), logCompare);
+}
 
 // For ordering of paths
-//static bool logCompare(Log log1, Log log2)
-//{
-//    auto fn1 { log1.logpath.stem().string() };
-//    auto fn2 { log2.logpath.stem().string() };
-//    return std::stoi(fn1) < std::stoi(fn2);
-//}
+static bool logCompare(Log log1, Log log2)
+{
+    auto fn1 { log1.logpath.stem().string() };
+    auto fn2 { log2.logpath.stem().string() };
+    return std::stoi(fn1) < std::stoi(fn2);
+}
 
 Log::Log(std::filesystem::path alogpath)
 {
