@@ -27,8 +27,16 @@ class WindowManager
 
         // Get Terminal Size
         void getTerminalSize(unsigned int& y, unsigned int& x);
+
+        // Get Highlighted Window
+        unsigned int getHighlightIndex();
+
+        // Set Highlight
+        void setHighlightIndex(unsigned int highlight);
+
     private:
         std::vector<WINDOW*> windows {};
+        unsigned int highlighted { 0 };
 };
 
 class Menu

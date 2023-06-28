@@ -49,6 +49,23 @@ void WindowManager::getTerminalSize(unsigned int& y, unsigned int& x)
     getmaxyx(stdscr, y, x);
 }
 
+unsigned int WindowManager::getHighlightIndex()
+{
+    return highlighted;
+}
+
+void WindowManager::setHighlightIndex(unsigned int highlight)
+{
+    if (highlight < windows.size())
+    {
+        highlighted = highlight;
+    }
+    else
+    {
+        highlighted = 0;
+    }
+}
+
 /*
 void WindowManager::makeMenu(unsigned int windowindex, std::vector<std::string> entries, bool inc)
 {
