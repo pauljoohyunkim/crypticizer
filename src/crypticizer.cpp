@@ -108,6 +108,34 @@ static void launchSession(Session& session)
     int x, y;
     getmaxyx(stdscr, y, x);
     // Entry Window
-    wm.createWindow(y, x, 0, 0);
+    auto menuIndex { wm.createWindow(y, x, 0, 0) };
+    Menu menu { wm[menuIndex] };
+
+    // DEBUG: Creating Menu
+    std::vector<std::string> menuEntries {};
+    // Fill the menu
+    for (auto log : session.getLogs())
+    {
+        menuEntries.push_back(log.logpath.string());
+    }
+    menu.updateEntry(menuEntries);
+    menu.draw();
     getch();
+    //auto c = getch();
+    //while (true)
+    //{
+    //    if (c == 'q')
+    //    {
+    //        break;
+    //    }
+    //    else if (c == 'j')
+    //    {
+    //        menu.highlightNextEntry();
+    //    }
+    //    else if (c == 'k')
+    //    {
+    //        menu.highlightPreviousEntry();
+    //    }
+    //    menu.draw();
+    //}
 }

@@ -16,6 +16,11 @@ std::filesystem::path Session::getSessionPath()
     return sessionPath;
 }
 
+std::vector<Log> Session::getLogs()
+{
+    return logs;
+}
+
 void Session::addLog(std::filesystem::path p)
 {
     Log log { p };
