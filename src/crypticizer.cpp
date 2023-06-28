@@ -88,7 +88,9 @@ static void loadSession(Session& session)
         auto pathString { filepath.path().filename().string() };
         if (std::regex_search(pathString, match, filter))
         {
-            session.addEntryFilePath(filepath.path());
+            auto fp { filepath.path() };
+            auto timestamp { (std::time_t) std::stoi(fp.stem()) };
+            session.addLog(fp, timestamp);
         }
     }
 }

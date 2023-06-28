@@ -4,4 +4,5 @@ project(crypticizer)
 
 add_executable(crypticizer src/crypticizer.cpp src/menu.cpp src/session.cpp)
 target_link_libraries(crypticizer -lncurses)
+target_compile_features(crypticizer PRIVATE cxx_std_17)
 
