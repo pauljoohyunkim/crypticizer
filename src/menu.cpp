@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <ctime>
 #include <vector>
 #include <iostream>
 #include <ncurses.h>
@@ -11,6 +12,8 @@ WindowManager::WindowManager()
     raw();
     noecho();
     refresh();
+    keypad(stdscr, TRUE);
+    curs_set(0);
 }
 
 WindowManager::~WindowManager()
@@ -45,6 +48,23 @@ WINDOW* WindowManager::operator[](unsigned int index)
 void WindowManager::getTerminalSize(unsigned int& y, unsigned int& x)
 {
     getmaxyx(stdscr, y, x);
+}
+
+unsigned int WindowManager::getHighlightIndex()
+{
+    return highlighted;
+}
+
+void WindowManager::setHighlightIndex(unsigned int highlight)
+{
+    if (highlight < windows.size())
+    {
+        highlighted = highlight;
+    }
+    else
+    {
+        highlighted = 0;
+    }
 }
 
 /*
@@ -105,7 +125,7 @@ void Menu::updateEntry(std::vector<std::string> aentries)
     entries = aentries;
     entryIndexMin = 0;
     getmaxyx(win, y, x);
-    entryIndexMax = std::min<unsigned int>(entries.size(), y - 2);
+    entryIndexMax = std::min<unsigned int>(entries.size() - 1, y - 3);
 }
 
 void Menu::draw()
@@ -134,8 +154,8 @@ void Menu::draw()
         }
         // Truncate the entry to show if it is too long for the box.
         auto entry { entries[index] };
-        auto entryView { entry.substr(0, std::min<unsigned int>(entry.length(), x) - 2) };
-        mvwprintw(win, rownum, 1, entryView.c_str());
+        auto entryView { entry.substr(0, std::min<unsigned int>(entry.length(), x - 2)) };
+        mvwprintw(win, rownum, 1, "%s", entryView.c_str());
         wattroff(win, A_STANDOUT);
     }
 
@@ -174,8 +194,29 @@ void Menu::highlightPreviousEntry()
     
 }
 
+
+void Menu::highlightFirstEntryInTheFrame()
+{
+    entryIndex = entryIndexMin;
+}
+
+void Menu::highlightLastEntryInTheFrame()
+{
+    entryIndex = entryIndexMax;
+}
+
 unsigned int Menu::getEntryIndex()
 {
     return entryIndex;
 }
 
+void menuUpdateFromSession(Session& session, Menu& menu)
+{
+    std::vector<std::string> menuEntries {};
+    // Fill the menu
+    for (auto log : session.getLogs())
+    {
+        menuEntries.push_back(log.logpath.string());
+    }
+    menu.updateEntry(menuEntries);
+}
