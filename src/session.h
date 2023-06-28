@@ -17,10 +17,15 @@ class Session
 
         // Getter
         std::filesystem::path getSessionPath();
+        std::vector<Log> getLogs();
 
-        // Add entryFilePath
+        // Add Log
         void addLog(std::filesystem::path p);
         void addLog(std::filesystem::path p, std::time_t timer);
+
+        // Clear Log
+        void clearLog();
+
     private:
         // Ordering
         void orderLogs();

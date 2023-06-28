@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <regex>
 #include "crypticizer.h"
 #include "session.h"
@@ -14,6 +15,7 @@ namespace fs = std::filesystem;
 static void detectSession(Session& session, fs::path rootdir);
 static void loadSession(Session& session);
 static void launchSession(Session& session);
+static void launchEditor(std::string textEditorProgram, std::string filename);
 
 Session crypticizerSession {};
 
@@ -43,6 +45,9 @@ int main(int argc, char** argv)
 
     // Launch the terminal-based UI
     launchSession(crypticizerSession);
+
+    clear();
+    endwin();
 
     return EXIT_SUCCESS;
 }
@@ -84,6 +89,7 @@ static void detectSession(Session& session, fs::path rootdir)
 
 static void loadSession(Session& session)
 {
+    session.clearLog();
     auto rootdir { session.getSessionPath() };
     const std::regex filter { "[0-9]+\\.crpt$" };
 
@@ -104,4 +110,86 @@ static void loadSession(Session& session)
 static void launchSession(Session& session)
 {
     WindowManager wm;
+    // Window size
+    int x, y;
+    getmaxyx(stdscr, y, x);
+    // Entry Window
+    auto menuIndex { wm.createWindow(y / 2, x, 0, 0) };
+    Menu menu { wm[menuIndex] };
+    // Info Window
+    auto infoIndex { wm.createWindow(y / 2, x, y / 2, 0) };
+
+    // Get menu from session
+    menuUpdateFromSession(session, menu);
+    menu.draw();
+
+    // Wiring of the keys!
+    auto c = getch();
+    while (true)
+    {
+        if (c == 'q')
+        {
+            break;
+        }
+        else if (c == 'j' || c == KEY_DOWN)
+        {
+            menu.highlightNextEntry();
+        }
+        else if (c == 'k' || c == KEY_UP)
+        {
+            menu.highlightPreviousEntry();
+        }
+        else if (c == 'l' || c == KEY_RIGHT)
+        {
+            menu.highlightLastEntryInTheFrame();
+            menu.highlightNextEntry();
+        }
+        else if (c == 'h' || c == KEY_LEFT)
+        {
+            menu.highlightFirstEntryInTheFrame();
+            menu.highlightPreviousEntry();
+            menu.highlightFirstEntryInTheFrame();
+        }
+        else if (c == KEY_HOME)
+        {
+            menu.highlightFirstEntryInTheFrame();
+        }
+        else if (c == KEY_END)
+        {
+            menu.highlightLastEntryInTheFrame();
+        }
+        else if (c == '\n')
+        {
+            printw("%d", menu.getEntryIndex());
+            std::string textEditor { "vim" };
+            std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
+            launchEditor(textEditor, filename);
+        }
+        else if (c == KEY_F(5))
+        {
+            // Refresh
+            loadSession(session);
+            menuUpdateFromSession(session, menu);
+        }
+        menu.draw();
+        c = getch();
+    }
+}
+
+static void launchEditor(std::string textEditorProgram, std::string filename)
+{
+
+    // Fork and exec to create child process to the text editor.
+    auto pid { fork() };
+
+    if (pid == 0)
+    {
+        // Child
+        execlp(textEditorProgram.c_str(), textEditorProgram.c_str(), filename.c_str(), NULL);
+    }
+    else if (pid > 0)
+    {
+        // Parent
+        wait(0);
+    }
 }

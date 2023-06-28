@@ -5,6 +5,8 @@
 #include <ncurses.h>
 #include <string>
 
+#include "session.h"
+
 class WindowManager
 {
     public:
@@ -27,8 +29,16 @@ class WindowManager
 
         // Get Terminal Size
         void getTerminalSize(unsigned int& y, unsigned int& x);
+
+        // Get Highlighted Window
+        unsigned int getHighlightIndex();
+
+        // Set Highlight
+        void setHighlightIndex(unsigned int highlight);
+
     private:
         std::vector<WINDOW*> windows {};
+        unsigned int highlighted { 0 };
 };
 
 class Menu
@@ -40,6 +50,8 @@ class Menu
         void draw();
         void highlightNextEntry();
         void highlightPreviousEntry();
+        void highlightFirstEntryInTheFrame();
+        void highlightLastEntryInTheFrame();
         unsigned int getEntryIndex();
 
     private:
@@ -54,5 +66,7 @@ class Menu
         std::vector<std::string> entries {};
 
 };
+
+void menuUpdateFromSession(Session& session, Menu& menu);
 
 #endif
