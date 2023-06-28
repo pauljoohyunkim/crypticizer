@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <ctime>
 #include <vector>
 #include <iostream>
 #include <ncurses.h>
