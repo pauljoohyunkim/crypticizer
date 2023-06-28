@@ -1,4 +1,5 @@
 #include <string>
+#include <ctime>
 #include <filesystem>
 #include <algorithm>
 #include "session.h"
@@ -18,7 +19,13 @@ std::filesystem::path Session::getSessionPath()
 void Session::addLog(std::filesystem::path p)
 {
     Log log { p };
-    logs.push_back(p);
+    logs.push_back(log);
+    orderLogs();
+}
+void Session::addLog(std::filesystem::path p, std::time_t timer)
+{
+    Log log { p, timer };
+    logs.push_back(log);
     orderLogs();
 }
 

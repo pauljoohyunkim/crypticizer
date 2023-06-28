@@ -136,7 +136,7 @@ void Menu::draw()
         // Truncate the entry to show if it is too long for the box.
         auto entry { entries[index] };
         auto entryView { entry.substr(0, std::min<unsigned int>(entry.length(), x) - 2) };
-        mvwprintw(win, rownum, 1, entryView.c_str());
+        mvwprintw(win, rownum, 1, "%s", entryView.c_str());
         wattroff(win, A_STANDOUT);
     }
 

@@ -1,6 +1,7 @@
 #ifndef SESSION_H
 #define SESSION_H
 
+#include <ctime>
 #include <string>
 #include <filesystem>
 #include <vector>
@@ -19,7 +20,7 @@ class Session
 
         // Add entryFilePath
         void addLog(std::filesystem::path p);
-        //void addLog(std::filesystem::path p, std::time_t timer);
+        void addLog(std::filesystem::path p, std::time_t timer);
     private:
         // Ordering
         void orderLogs();
