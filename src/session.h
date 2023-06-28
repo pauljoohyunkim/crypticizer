@@ -5,6 +5,9 @@
 #include <filesystem>
 #include <vector>
 
+class Session;
+class Log;
+
 class Session
 {
     public:
@@ -15,15 +18,26 @@ class Session
         std::filesystem::path getSessionPath();
 
         // Add entryFilePath
-        void addEntryFilePath(std::filesystem::path p);
+        void addLog(std::filesystem::path p);
+        //void addLog(std::filesystem::path p, std::time_t timer);
     private:
         // Ordering
-        void orderEntryFilePaths();
+        //void orderLogs();
 
         std::filesystem::path sessionPath {};
-        std::vector<std::string> logfilenames {};
-        std::vector<std::filesystem::path> entryFilePaths {};
+        std::vector<Log> logs {};
 
+};
+
+class Log
+{
+    public:
+        Log(std::filesystem::path alogpath);
+        Log(std::filesystem::path alogpath, std::time_t atimer);
+
+        std::filesystem::path logpath {};
+    private:
+        std::time_t timer;
 };
 
 #endif
