@@ -104,4 +104,10 @@ static void loadSession(Session& session)
 static void launchSession(Session& session)
 {
     WindowManager wm;
+    // Window size
+    int x, y;
+    getmaxyx(stdscr, y, x);
+    // Entry Window
+    wm.createWindow(y, x, 0, 0);
+    getch();
 }
