@@ -79,13 +79,13 @@ static void detectSession(Session& session, fs::path rootdir)
 static void menuLaunch(Session& session)
 {
     auto rootdir { session.getSessionPath() };
-    const std::regex filter { ".+\\.crpt$" };
+    const std::regex filter { "[0-9]+\\.crpt$" };
 
     // Filter out files with extension .crpt
     for (auto filepath : fs::directory_iterator{rootdir})
     {
         std::smatch match;
-        auto pathString { filepath.path().string() };
+        auto pathString { filepath.path().filename().string() };
         if (std::regex_search(pathString, match, filter))
         {
             std::cout << pathString << std::endl;
