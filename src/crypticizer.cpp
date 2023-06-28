@@ -134,11 +134,21 @@ static void launchSession(Session& session)
         {
             menu.highlightPreviousEntry();
         }
-        else if (c == KEY_PPAGE)
+        else if (c == KEY_RIGHT)
+        {
+            menu.highlightLastEntryInTheFrame();
+            menu.highlightNextEntry();
+        }
+        else if (c == KEY_LEFT)
+        {
+            menu.highlightFirstEntryInTheFrame();
+            menu.highlightPreviousEntry();
+        }
+        else if (c == KEY_HOME)
         {
             menu.highlightFirstEntryInTheFrame();
         }
-        else if (c == KEY_NPAGE)
+        else if (c == KEY_END)
         {
             menu.highlightLastEntryInTheFrame();
         }
