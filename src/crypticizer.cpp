@@ -108,8 +108,10 @@ static void launchSession(Session& session)
     int x, y;
     getmaxyx(stdscr, y, x);
     // Entry Window
-    auto menuIndex { wm.createWindow(y, x, 0, 0) };
+    auto menuIndex { wm.createWindow(y / 2, x, 0, 0) };
     Menu menu { wm[menuIndex] };
+    // Info Window
+    auto infoIndex { wm.createWindow(y / 2, x, y / 2, 0) };
 
     // DEBUG: Creating Menu
     std::vector<std::string> menuEntries {};

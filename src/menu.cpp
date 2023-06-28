@@ -12,6 +12,7 @@ WindowManager::WindowManager()
     raw();
     noecho();
     refresh();
+    curs_set(0);
 }
 
 WindowManager::~WindowManager()
