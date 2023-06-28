@@ -12,6 +12,7 @@ WindowManager::WindowManager()
     raw();
     noecho();
     refresh();
+    keypad(stdscr, TRUE);
     curs_set(0);
 }
 
@@ -198,3 +199,13 @@ unsigned int Menu::getEntryIndex()
     return entryIndex;
 }
 
+void menuUpdateFromSession(Session& session, Menu& menu)
+{
+    std::vector<std::string> menuEntries {};
+    // Fill the menu
+    for (auto log : session.getLogs())
+    {
+        menuEntries.push_back(log.logpath.string());
+    }
+    menu.updateEntry(menuEntries);
+}

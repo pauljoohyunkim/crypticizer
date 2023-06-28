@@ -5,6 +5,8 @@
 #include <ncurses.h>
 #include <string>
 
+#include "session.h"
+
 class WindowManager
 {
     public:
@@ -62,5 +64,7 @@ class Menu
         std::vector<std::string> entries {};
 
 };
+
+void menuUpdateFromSession(Session& session, Menu& menu);
 
 #endif

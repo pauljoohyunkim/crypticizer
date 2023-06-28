@@ -33,6 +33,10 @@ void Session::addLog(std::filesystem::path p, std::time_t timer)
     logs.push_back(log);
     orderLogs();
 }
+void Session::clearLog()
+{
+    logs.clear();
+}
 
 void Session::orderLogs()
 {

@@ -84,6 +84,7 @@ static void detectSession(Session& session, fs::path rootdir)
 
 static void loadSession(Session& session)
 {
+    session.clearLog();
     auto rootdir { session.getSessionPath() };
     const std::regex filter { "[0-9]+\\.crpt$" };
 
@@ -113,14 +114,8 @@ static void launchSession(Session& session)
     // Info Window
     auto infoIndex { wm.createWindow(y / 2, x, y / 2, 0) };
 
-    // DEBUG: Creating Menu
-    std::vector<std::string> menuEntries {};
-    // Fill the menu
-    for (auto log : session.getLogs())
-    {
-        menuEntries.push_back(log.logpath.string());
-    }
-    menu.updateEntry(menuEntries);
+    // Get menu from session
+    menuUpdateFromSession(session, menu);
     menu.draw();
     auto c = getch();
     while (true)
@@ -129,13 +124,23 @@ static void launchSession(Session& session)
         {
             break;
         }
-        else if (c == 'j')
+        else if (c == 'j' || c == KEY_DOWN)
         {
             menu.highlightNextEntry();
         }
-        else if (c == 'k')
+        else if (c == 'k' || c == KEY_UP)
         {
             menu.highlightPreviousEntry();
+        }
+        else if (c == '\n')
+        {
+            printw("%d", menu.getEntryIndex());
+        }
+        else if (c == KEY_F(5))
+        {
+            // Refresh
+            loadSession(session);
+            menuUpdateFromSession(session, menu);
         }
         menu.draw();
         c = getch();
