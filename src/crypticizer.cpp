@@ -7,11 +7,13 @@
 #include "crypticizer.h"
 #include "session.h"
 #include "errorcodes.h"
+#include "menu.h"
 
 namespace fs = std::filesystem;
 
 static void detectSession(Session& session, fs::path rootdir);
 static void loadSession(Session& session);
+static void launchSession(Session& session);
 
 Session crypticizerSession {};
 
@@ -36,7 +38,11 @@ int main(int argc, char** argv)
         detectSession(crypticizerSession, fs::current_path());
     }
 
+    // Load from crpt files
     loadSession(crypticizerSession);
+
+    // Launch the terminal-based UI
+    launchSession(crypticizerSession);
 
     return EXIT_SUCCESS;
 }
@@ -93,4 +99,9 @@ static void loadSession(Session& session)
             session.addLog(fp, timestamp);
         }
     }
+}
+
+static void launchSession(Session& session)
+{
+    WindowManager wm;
 }
