@@ -117,6 +117,8 @@ static void launchSession(Session& session)
     // Get menu from session
     menuUpdateFromSession(session, menu);
     menu.draw();
+
+    // Wiring of the keys!
     auto c = getch();
     while (true)
     {
@@ -131,6 +133,14 @@ static void launchSession(Session& session)
         else if (c == 'k' || c == KEY_UP)
         {
             menu.highlightPreviousEntry();
+        }
+        else if (c == KEY_PPAGE)
+        {
+            menu.highlightFirstEntryInTheFrame();
+        }
+        else if (c == KEY_NPAGE)
+        {
+            menu.highlightLastEntryInTheFrame();
         }
         else if (c == '\n')
         {

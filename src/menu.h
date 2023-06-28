@@ -50,6 +50,8 @@ class Menu
         void draw();
         void highlightNextEntry();
         void highlightPreviousEntry();
+        void highlightFirstEntryInTheFrame();
+        void highlightLastEntryInTheFrame();
         unsigned int getEntryIndex();
 
     private:

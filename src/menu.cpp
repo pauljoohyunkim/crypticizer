@@ -194,6 +194,17 @@ void Menu::highlightPreviousEntry()
     
 }
 
+
+void Menu::highlightFirstEntryInTheFrame()
+{
+    entryIndex = entryIndexMin;
+}
+
+void Menu::highlightLastEntryInTheFrame()
+{
+    entryIndex = entryIndexMax;
+}
+
 unsigned int Menu::getEntryIndex()
 {
     return entryIndex;
