@@ -190,5 +190,6 @@ static void launchEditor(std::string textEditorProgram, std::string filename)
     {
         // Parent
         wait(0);
+        refresh();
     }
 }
