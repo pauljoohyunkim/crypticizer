@@ -11,7 +11,7 @@
 namespace fs = std::filesystem;
 
 static void detectSession(Session& session, fs::path rootdir);
-static void menuLaunch(Session& session);
+static void loadSession(Session& session);
 
 Session crypticizerSession {};
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         detectSession(crypticizerSession, fs::current_path());
     }
 
-    menuLaunch(crypticizerSession);
+    loadSession(crypticizerSession);
 
     return EXIT_SUCCESS;
 }
@@ -76,7 +76,7 @@ static void detectSession(Session& session, fs::path rootdir)
     }
 }
 
-static void menuLaunch(Session& session)
+static void loadSession(Session& session)
 {
     auto rootdir { session.getSessionPath() };
     const std::regex filter { "[0-9]+\\.crpt$" };
