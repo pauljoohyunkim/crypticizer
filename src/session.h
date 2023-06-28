@@ -17,6 +17,9 @@ class Session
         // Add entryFilePath
         void addEntryFilePath(std::filesystem::path p);
     private:
+        // Ordering
+        void orderEntryFilePaths();
+
         std::filesystem::path sessionPath {};
         std::vector<std::string> logfilenames {};
         std::vector<std::filesystem::path> entryFilePaths {};
