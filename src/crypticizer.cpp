@@ -46,6 +46,9 @@ int main(int argc, char** argv)
     // Launch the terminal-based UI
     launchSession(crypticizerSession);
 
+    clear();
+    endwin();
+
     return EXIT_SUCCESS;
 }
 
