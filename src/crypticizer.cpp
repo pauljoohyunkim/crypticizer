@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <regex>
 #include "crypticizer.h"
 #include "session.h"
@@ -14,6 +15,7 @@ namespace fs = std::filesystem;
 static void detectSession(Session& session, fs::path rootdir);
 static void loadSession(Session& session);
 static void launchSession(Session& session);
+static void launchEditor(std::string textEditorProgram, std::string filename);
 
 Session crypticizerSession {};
 
@@ -156,6 +158,9 @@ static void launchSession(Session& session)
         else if (c == '\n')
         {
             printw("%d", menu.getEntryIndex());
+            std::string textEditor { "vim" };
+            std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
+            launchEditor(textEditor, filename);
         }
         else if (c == KEY_F(5))
         {
@@ -165,5 +170,22 @@ static void launchSession(Session& session)
         }
         menu.draw();
         c = getch();
+    }
+}
+
+static void launchEditor(std::string textEditorProgram, std::string filename)
+{
+    // Fork and exec to create child process to the text editor.
+    auto pid { fork() };
+
+    if (pid == 0)
+    {
+        // Child
+        execlp(textEditorProgram.c_str(), filename.c_str(), NULL);
+    }
+    else if (pid > 0)
+    {
+        // Parent
+        wait(0);
     }
 }
