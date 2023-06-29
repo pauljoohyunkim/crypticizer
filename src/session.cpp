@@ -11,6 +11,11 @@ void Session::setSessionPath(std::filesystem::path path)
     sessionPath = path;
 }
 
+void Session::setSessionPassword(std::string pass)
+{
+    password = pass;
+}
+
 std::filesystem::path Session::getSessionPath()
 {
     return sessionPath;

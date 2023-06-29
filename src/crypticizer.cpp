@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <unistd.h>
+#include <termios.h>
 #include <sys/wait.h>
 #include <regex>
 #include "crypticizer.h"
@@ -13,6 +14,7 @@
 namespace fs = std::filesystem;
 
 static void detectSession(Session& session, fs::path rootdir);
+static std::string getPassword(bool verify=false);
 static void loadSession(Session& session);
 static void launchSession(Session& session);
 static void launchEditor(std::string textEditorProgram, std::string filename);
@@ -84,7 +86,38 @@ static void detectSession(Session& session, fs::path rootdir)
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
         session.setSessionPath(rootdir);
+        session.setSessionPassword(getPassword(true));
     }
+}
+
+static std::string getPassword(bool verify)
+{
+    std::cout << "Enter password: " << std::flush;
+
+    termios old_settings, new_settings;
+    tcgetattr(STDIN_FILENO, &old_settings);
+    new_settings = old_settings;
+    new_settings.c_lflag &= ~(ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
+
+    std::string pass;
+    std::getline(std::cin, pass);
+
+    if (verify)
+    {
+        std::string pass2;
+        std::cout << std::endl << "Enter the password again: " << std::flush;
+        std::getline(std::cin, pass2);
+        if (pass != pass2)
+        {
+            std::cout << std::endl;
+            std::cerr << "Error: Passwords do not match!" << std::endl;
+            tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+            exit(PASSWORD_DO_NOT_MATCH);
+        }
+    }
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+    return pass;
 }
 
 static void loadSession(Session& session)

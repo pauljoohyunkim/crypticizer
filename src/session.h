@@ -14,6 +14,7 @@ class Session
     public:
         // Setter
         void setSessionPath(std::filesystem::path path);
+        void setSessionPassword(std::string pass);
 
         // Getter
         std::filesystem::path getSessionPath();
@@ -32,6 +33,7 @@ class Session
 
         std::filesystem::path sessionPath {};
         std::vector<Log> logs {};
+        std::string password {};
 
 };
 
