@@ -178,6 +178,8 @@ static void launchSession(Session& session)
 static void launchEditor(std::string textEditorProgram, std::string filename)
 {
 
+    def_prog_mode();
+    endwin();
     // Fork and exec to create child process to the text editor.
     auto pid { fork() };
 
@@ -190,6 +192,7 @@ static void launchEditor(std::string textEditorProgram, std::string filename)
     {
         // Parent
         wait(0);
+        reset_prog_mode();
         refresh();
     }
 }
