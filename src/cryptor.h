@@ -32,10 +32,12 @@ class Hasher
         void setSalt(std::string rawsalt);
         void generateSalt(unsigned int length);
 
+        // Set Digest
+        void setDigest(std::string rawdigest);
         // Digest
-        void digestWithSalt(std::string message);
+        std::string digestWithSalt(std::string message);
 
-        // Output
+        // Output hexdigest (requires salt and digest to be assigned)
         std::string hexdigest();
 
     private:

@@ -39,6 +39,11 @@ void Hasher::setSalt(std::string rawsalt)
     salt = rawsalt;
 }
 
+void Hasher::setDigest(std::string rawdigest)
+{
+    digest = rawdigest;
+}
+
 void Hasher::generateSalt(unsigned int length)
 {
     auto buf = new unsigned char [length];
@@ -53,7 +58,7 @@ void Hasher::generateSalt(unsigned int length)
     delete [] buf;
 }
 
-void Hasher::digestWithSalt(std::string message)
+std::string Hasher::digestWithSalt(std::string message)
 {
     EVP_MD_CTX* mdctx;
     EVP_MD* md;
@@ -96,6 +101,8 @@ void Hasher::digestWithSalt(std::string message)
     EVP_MD_CTX_free(mdctx);
 
     digest = std::string(md_value, md_value+digestByteLength);
+
+    return digest;
 }
 
 std::string Hasher::hexdigest()

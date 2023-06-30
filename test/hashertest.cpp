@@ -4,6 +4,7 @@
 int main()
 {
     Hasher hasher { HFT_SHA512 };
+    Hasher hasher2 { HFT_SHA512 };
 
     // Setting salt test
     std::string givenSalt { "hello" };
@@ -17,8 +18,12 @@ int main()
 
     // Test Message
     std::string mess { "Test Message" };
-    hasher.digestWithSalt(mess);
+    auto digest = hasher.digestWithSalt(mess);
 
-    std::cout << hasher.hexdigest() << std::endl;
+    std::cout << "Hasher1 Hexdigest: " << hasher.hexdigest() << std::endl;
+
+    hasher2.setSalt(std::string());
+    hasher2.setDigest(digest);
+    std::cout << "Hasher2 Hexdigest: " << hasher2.hexdigest() << std::endl;
     return 0;
 }
