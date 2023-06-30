@@ -10,5 +10,12 @@ int main()
 
     // Generating salt test
     hasher.generateSalt(10);
+
+    // Clear salt
+    hasher.setSalt(std::string());
+
+    // Test Message
+    std::string mess { "Test Message" };
+    hasher.digestWithSalt(mess);
     return 0;
 }

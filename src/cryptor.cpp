@@ -55,4 +55,43 @@ void Hasher::digestWithSalt(std::string message)
 {
     EVP_MD_CTX* mdctx;
     EVP_MD* md;
+    unsigned char md_value[EVP_MAX_MD_SIZE];
+    unsigned int digestByteLength = digestLength / 8;
+
+    md = EVP_MD_fetch(NULL, hashFunctionName.c_str(), NULL);
+    mdctx = EVP_MD_CTX_new();
+
+    // Initialize
+    if(!EVP_DigestInit_ex2(mdctx, md, NULL))
+    {
+        std::cerr << "Error: Cannot initialize hasher digester" << std::endl;
+        EVP_MD_CTX_free(mdctx);
+        exit(CANNOT_INITIALIZE_DIGEST);
+    }
+
+    // Salt Digest
+    if(!EVP_DigestUpdate(mdctx, salt.c_str(), salt.length()))
+    {
+        std::cerr << "Error: Cannot update hasher digester" << std::endl;
+        EVP_MD_CTX_free(mdctx);
+        exit(CANNOT_UPDATE_DIGEST);
+    }
+    // Message Digest
+    if(!EVP_DigestUpdate(mdctx, message.c_str(), message.length()))
+    {
+        std::cerr << "Error: Cannot update hasher digester" << std::endl;
+        EVP_MD_CTX_free(mdctx);
+        exit(CANNOT_UPDATE_DIGEST);
+    }
+
+    // Finalize
+    if(!EVP_DigestFinal_ex(mdctx, md_value, NULL))
+    {
+        std::cerr << "Error: Cannot finalize hasher digester" << std::endl;
+        EVP_MD_CTX_free(mdctx);
+        exit(CANNOT_FINALIZE_DIGEST);
+    }
+    EVP_MD_CTX_free(mdctx);
+
+    digest = std::string(md_value, md_value+digestByteLength);
 }
