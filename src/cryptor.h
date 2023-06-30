@@ -16,9 +16,11 @@ class Cryptor
 
 };
 
+// Enum value inspired from Linux shadow file hash function type
 enum HashFunctionType
 {
-    HFT_SCRYPT = 0,
+    HFT_SHA256 = 5,
+    HFT_SHA512 = 6
 };
 
 class Hasher
@@ -31,8 +33,12 @@ class Hasher
 
         void generateSalt(unsigned int length);
 
+        void digestWithSalt(std::string message);
+
     private:
-        HashFunctionType hashFunctionType { HFT_SCRYPT };
+        HashFunctionType hashFunctionType { HFT_SHA512 };
+        std::string hashFunctionName {};
+        unsigned int digestLength;
         std::string salt {};
         std::string digest {};
 };

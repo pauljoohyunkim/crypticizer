@@ -2,9 +2,17 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <unordered_map>
+#include <tuple>
 #include <openssl/rand.h>
 #include "cryptor.h"
 #include "errorcodes.h"
+
+static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigned int>> hftToMdName = 
+{
+    { HFT_SHA256, { "sha256", 256 } },
+    { HFT_SHA512, { "sha512", 512 } }
+};
 
 Cryptor::Cryptor(std::filesystem::path path)
 {
@@ -19,6 +27,9 @@ Cryptor::Cryptor(std::string path)
 Hasher::Hasher(HashFunctionType hft)
 {
     hashFunctionType = hft;
+    auto hashFunctionDetails = hftToMdName.at(hft);
+    hashFunctionName = hashFunctionDetails.first;
+    digestLength = hashFunctionDetails.second;
 }
 
 void Hasher::setSalt(std::string rawsalt)
@@ -38,4 +49,10 @@ void Hasher::generateSalt(unsigned int length)
     // Successfully filled with random bytes
     salt = std::string { (char*) buf, length };
     delete [] buf;
+}
+
+void Hasher::digestWithSalt(std::string message)
+{
+    EVP_MD_CTX* mdctx;
+    EVP_MD* md;
 }
