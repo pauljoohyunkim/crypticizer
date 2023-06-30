@@ -21,6 +21,11 @@ std::filesystem::path Session::getSessionPath()
     return sessionPath;
 }
 
+std::string Session::getSessionPassword()
+{
+    return password;
+}
+
 std::vector<Log> Session::getLogs()
 {
     return logs;

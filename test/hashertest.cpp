@@ -1,5 +1,6 @@
 #include "../src/cryptor.h"
 #include <iostream>
+#include <filesystem>
 
 int main()
 {
@@ -25,5 +26,8 @@ int main()
     hasher2.setSalt(std::string());
     hasher2.setDigest(digest);
     std::cout << "Hasher2 Hexdigest: " << hasher2.hexdigest() << std::endl;
+
+    std::filesystem::path path { "./test.txt" };    
+    hasher.dumpHexdigestToFile(path);
     return 0;
 }

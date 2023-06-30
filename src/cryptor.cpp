@@ -120,3 +120,11 @@ std::string Hasher::hexdigest()
 
     return ss.str();
 }
+
+void Hasher::dumpHexdigestToFile(std::filesystem::path path)
+{
+    std::string pathString { path.string() };
+    std::ofstream outFile { pathString };
+    outFile << hexdigest();
+    outFile.close();
+}

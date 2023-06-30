@@ -18,6 +18,7 @@ class Session
 
         // Getter
         std::filesystem::path getSessionPath();
+        std::string getSessionPassword();
         std::vector<Log> getLogs();
 
         // Add Log

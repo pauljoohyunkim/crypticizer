@@ -39,6 +39,7 @@ class Hasher
 
         // Output hexdigest (requires salt and digest to be assigned)
         std::string hexdigest();
+        void dumpHexdigestToFile(std::filesystem::path path);
 
     private:
         HashFunctionType hashFunctionType { HFT_SHA512 };
