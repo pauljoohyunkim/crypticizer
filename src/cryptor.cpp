@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <string>
 #include <filesystem>
 #include <unordered_map>
@@ -94,4 +96,20 @@ void Hasher::digestWithSalt(std::string message)
     EVP_MD_CTX_free(mdctx);
 
     digest = std::string(md_value, md_value+digestByteLength);
+}
+
+std::string Hasher::hexdigest()
+{
+    std::stringstream ss;
+    for (unsigned char c : salt)
+    {
+        ss << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) c;
+    }
+    ss << '$';
+    for (unsigned char c : digest)
+    {
+        ss << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) c;
+    }
+
+    return ss.str();
 }

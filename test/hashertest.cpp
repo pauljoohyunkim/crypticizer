@@ -1,4 +1,5 @@
 #include "../src/cryptor.h"
+#include <iostream>
 
 int main()
 {
@@ -17,5 +18,7 @@ int main()
     // Test Message
     std::string mess { "Test Message" };
     hasher.digestWithSalt(mess);
+
+    std::cout << hasher.hexdigest() << std::endl;
     return 0;
 }

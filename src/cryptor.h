@@ -30,10 +30,13 @@ class Hasher
         
         // Set Salt
         void setSalt(std::string rawsalt);
-
         void generateSalt(unsigned int length);
 
+        // Digest
         void digestWithSalt(std::string message);
+
+        // Output
+        std::string hexdigest();
 
     private:
         HashFunctionType hashFunctionType { HFT_SHA512 };
