@@ -11,6 +11,8 @@
 #include "cryptor.h"
 #include "errorcodes.h"
 
+static std::string hexToRaw(std::string hexstring);
+
 static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigned int>> hftToMdName = 
 {
     { HFT_SHA256, { "sha256", 256 } },
@@ -130,8 +132,10 @@ void Hasher::dumpHexdigestToFile(std::filesystem::path path)
     outFile.close();
 }
 
-void Hasher::readHexdigestFile(std::filesystem::path path, unsigned int saltByteLen)
+Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen)
 {
+    Hasher hasher { hft };
+    unsigned int digestLength { hftToMdName.at(hft).second };
     unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
     // Reading expected number of bytes only.
     unsigned int readByteLen = 2 * saltByteLen + 1 + 2 * digestByteLength;
@@ -162,16 +166,31 @@ void Hasher::readHexdigestFile(std::filesystem::path path, unsigned int saltByte
         inFile.close();
         exit(UNEXPECTED_FILE_FORMAT);
     }
-
-    referenceHexdigest = hexDigestString;
     inFile.close();
+
+    // hexDigestString is now a valid form.
+    // Extract valid information.
+    auto hexSalt = hexDigestString.substr(0, 2 * saltByteLen);
+    auto hexDigest = hexDigestString.substr(2 * saltByteLen + 1, 2 * digestByteLength);
+
+    auto rawSalt = hexToRaw(hexSalt);
+    auto rawDigest = hexToRaw(hexDigest);
+
+    hasher.setSalt(rawSalt);
+    hasher.setDigest(rawDigest);
+
+    return hasher;
 }
 
-bool Hasher::verifyHash()
+static std::string hexToRaw(std::string hexstring)
 {
-    if (hexdigest() == referenceHexdigest)
+    std::string rawstring {};
+    for (unsigned int i = 0; i < hexstring.length(); i += 2)
     {
-        return true;
+        std::string byteString = hexstring.substr(i, 2);
+        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
+        rawstring += byte;
     }
-    return false;
+
+    return rawstring;
 }

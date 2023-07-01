@@ -17,6 +17,7 @@ int main()
     std::string mess { "Test Message" };
     auto digest = hasher.digestWithSalt(mess);
 
+    auto hexdigest = hasher.hexdigest();
     std::cout << "Hasher1 Hexdigest: " << hasher.hexdigest() << std::endl;
 
     //hasher2.setSalt(std::string());
@@ -26,10 +27,12 @@ int main()
     std::filesystem::path path { "./test.txt" };    
     hasher.dumpHexdigestToFile(path);
 
+    auto hasher3 = readHexdigestFile(path, HFT_SHA512, 10);
+
     // Retrieval
-    hasher.readHexdigestFile(path, 10);
+    //hasher.readHexdigestFile(path, 10);
     
     // Verify
-    auto verifyFlag = hasher.verifyHash();
+    //auto verifyFlag = hasher.verifyHash();
     return 0;
 }

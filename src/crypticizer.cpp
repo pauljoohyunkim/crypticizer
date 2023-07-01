@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <regex>
 #include "crypticizer.h"
+#include "cryptor.h"
 #include "session.h"
 #include "errorcodes.h"
 #include "menu.h"
@@ -72,6 +73,16 @@ static void detectSession(Session& session, fs::path rootdir)
     if (fs::exists(crypticizierDirectory))
     {
         session.setSessionPath(rootdir);
+        // Check if the hash file exists.
+        auto hashfilepath { rootdir/fs::path(HASHFILE) };
+        Hasher hasher { HASHFUNCTION };
+        if (fs::exists(hashfilepath))
+        {
+            // If it does, read it, and ask for password.
+            hasher.readHexdigestFile(hashfilepath, HASH_SALT_N_BYTES);
+            
+        }
+
     }
     else
     {
