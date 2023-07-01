@@ -32,6 +32,9 @@ class Hasher
         void setSalt(std::string rawsalt);
         void generateSalt(unsigned int length);
 
+        // Get salt
+        std::string getSalt();
+
         // Set Digest
         void setDigest(std::string rawdigest);
         // Digest
@@ -47,7 +50,6 @@ class Hasher
         unsigned int digestLength;
         std::string salt {};
         std::string digest {};
-        std::string referenceHexdigest {};
 };
 
 Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen);

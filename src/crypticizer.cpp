@@ -16,6 +16,7 @@ namespace fs = std::filesystem;
 
 static void detectSession(Session& session, fs::path rootdir);
 static std::string getPassword(bool verify=false);
+static void newProjectMessage();
 static void loadSession(Session& session);
 static void launchSession(Session& session);
 static void launchEditor(std::string textEditorProgram, std::string filename);
@@ -68,19 +69,33 @@ static void detectSession(Session& session, fs::path rootdir)
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
     }
     auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
+    auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
 
     // Check for .crypticizer directory in the CWD
     if (fs::exists(crypticizierDirectory))
     {
         session.setSessionPath(rootdir);
         // Check if the hash file exists.
-        auto hashfilepath { rootdir/fs::path(HASHFILE) };
-        Hasher hasher { HASHFUNCTION };
         if (fs::exists(hashfilepath))
         {
             // If it does, read it, and ask for password.
-            hasher.readHexdigestFile(hashfilepath, HASH_SALT_N_BYTES);
-            
+            auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
+            auto password = getPassword(false);
+            Hasher hasher { HASHFUNCTION };
+            auto salt = referenceHasher.getSalt();
+            // Set salt and digest
+            hasher.setSalt(salt);
+            hasher.digestWithSalt(password);
+            if (referenceHasher.hexsaltdigest() != hasher.hexsaltdigest())
+            {
+                //Password not matched!
+                std::cerr << "Error: Wrong password!" << std::endl;
+                exit(WRONG_PASSWORD);
+            }
+            else
+            {
+                session.setSessionPassword(password);
+            }
         }
 
     }
@@ -96,8 +111,15 @@ static void detectSession(Session& session, fs::path rootdir)
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
+        newProjectMessage();
         session.setSessionPath(rootdir);
-        session.setSessionPassword(getPassword(true));
+        auto password = getPassword(true);
+        session.setSessionPassword(password);
+        // Create hash file
+        Hasher hasher { HASHFUNCTION };
+        hasher.generateSalt(HASH_SALT_N_BYTES);
+        hasher.digestWithSalt(password);
+        hasher.dumpHexdigestToFile(hashfilepath);
     }
 }
 
@@ -131,6 +153,12 @@ static std::string getPassword(bool verify)
     return pass;
 }
 
+static void newProjectMessage()
+{
+    std::cout << "Creating new project..." << std::endl;
+    std::cout << "WARNING: It is YOUR responsibility to remember your own damn password!" << std::endl;
+}
+
 static void loadSession(Session& session)
 {
     session.clearLog();
@@ -150,6 +178,7 @@ static void loadSession(Session& session)
         }
     }
 }
+
 
 static void launchSession(Session& session)
 {

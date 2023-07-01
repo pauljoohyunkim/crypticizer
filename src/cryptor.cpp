@@ -61,6 +61,11 @@ void Hasher::generateSalt(unsigned int length)
     delete [] buf;
 }
 
+std::string Hasher::getSalt()
+{
+    return salt;
+}
+
 std::string Hasher::digestWithSalt(std::string message)
 {
     EVP_MD_CTX* mdctx;
