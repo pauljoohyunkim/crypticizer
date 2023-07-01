@@ -156,7 +156,7 @@ Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsig
         exit(UNEXPECTED_FILE_FORMAT);
     }
 
-    std::string hexDigestString { buf, buf+readByteLen };
+    std::string hexDigestString { buf, buf+inFile.gcount() };
     delete [] buf;
 
     // Check if form of (salt in hex)$(digest in hex)

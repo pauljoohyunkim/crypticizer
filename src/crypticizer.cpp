@@ -97,6 +97,20 @@ static void detectSession(Session& session, fs::path rootdir)
                 session.setSessionPassword(password);
             }
         }
+        else
+        {
+            //Otherwise, create hashfile
+
+            newProjectMessage();
+            session.setSessionPath(rootdir);
+            auto password = getPassword(true);
+            session.setSessionPassword(password);
+            // Create hash file
+            Hasher hasher { HASHFUNCTION };
+            hasher.generateSalt(HASH_SALT_N_BYTES);
+            hasher.digestWithSalt(password);
+            hasher.dumpHexdigestToFile(hashfilepath);
+        }
 
     }
     else
