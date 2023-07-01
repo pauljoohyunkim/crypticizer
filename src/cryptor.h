@@ -38,7 +38,7 @@ class Hasher
         std::string digestWithSalt(std::string message);
 
         // Output hexdigest (requires salt and digest to be assigned)
-        std::string hexdigest();
+        std::string hexsaltdigest();
         void dumpHexdigestToFile(std::filesystem::path path);
 
     private:

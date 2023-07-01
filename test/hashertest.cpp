@@ -17,8 +17,8 @@ int main()
     std::string mess { "Test Message" };
     auto digest = hasher.digestWithSalt(mess);
 
-    auto hexdigest = hasher.hexdigest();
-    std::cout << "Hasher1 Hexdigest: " << hasher.hexdigest() << std::endl;
+    auto hexdigest = hasher.hexsaltdigest();
+    std::cout << "Hasher1 Hexdigest: " << hexdigest << std::endl;
 
     //hasher2.setSalt(std::string());
     //hasher2.setDigest(digest);

@@ -108,7 +108,7 @@ std::string Hasher::digestWithSalt(std::string message)
     return digest;
 }
 
-std::string Hasher::hexdigest()
+std::string Hasher::hexsaltdigest()
 {
     std::stringstream ss;
     for (unsigned char c : salt)
@@ -128,7 +128,7 @@ void Hasher::dumpHexdigestToFile(std::filesystem::path path)
 {
     std::string pathString { path.string() };
     std::ofstream outFile { pathString };
-    outFile << hexdigest();
+    outFile << hexsaltdigest();
     outFile.close();
 }
 
