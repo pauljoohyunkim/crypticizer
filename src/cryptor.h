@@ -41,12 +41,19 @@ class Hasher
         std::string hexdigest();
         void dumpHexdigestToFile(std::filesystem::path path);
 
+        void readHexdigestFile(std::filesystem::path path, unsigned int saltByteLen);
+        
+        // Verify hash
+        // Need readHexdigestFile to be called beforehand to make referenceHexdigest to be filled.
+        bool verifyHash();
+
     private:
         HashFunctionType hashFunctionType { HFT_SHA512 };
         std::string hashFunctionName {};
         unsigned int digestLength;
         std::string salt {};
         std::string digest {};
+        std::string referenceHexdigest {};
 };
 
 #endif

@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <tuple>
+#include <regex>
 #include <openssl/rand.h>
 #include "cryptor.h"
 #include "errorcodes.h"
@@ -63,7 +64,7 @@ std::string Hasher::digestWithSalt(std::string message)
     EVP_MD_CTX* mdctx;
     EVP_MD* md;
     unsigned char md_value[EVP_MAX_MD_SIZE];
-    unsigned int digestByteLength = digestLength / 8;
+    unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
 
     md = EVP_MD_fetch(NULL, hashFunctionName.c_str(), NULL);
     mdctx = EVP_MD_CTX_new();
@@ -127,4 +128,50 @@ void Hasher::dumpHexdigestToFile(std::filesystem::path path)
     std::ofstream outFile { pathString };
     outFile << hexdigest();
     outFile.close();
+}
+
+void Hasher::readHexdigestFile(std::filesystem::path path, unsigned int saltByteLen)
+{
+    unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
+    // Reading expected number of bytes only.
+    unsigned int readByteLen = 2 * saltByteLen + 1 + 2 * digestByteLength;
+    auto buf = new char [readByteLen];
+    std::string pathString { path.string() };
+    std::ifstream inFile { pathString };
+
+    if (!inFile.read(buf, readByteLen))
+    {
+        std::cerr << "Error: Unexpected file format" << std::endl;
+        delete [] buf;
+        inFile.close();
+        exit(UNEXPECTED_FILE_FORMAT);
+    }
+
+    std::string hexDigestString { buf, buf+readByteLen };
+    delete [] buf;
+
+    // Check if form of (salt in hex)$(digest in hex)
+    std::stringstream ss;
+    ss << "^[0-9a-fA-F]{" << 2 * saltByteLen << "}\\$"
+        << "[0-9a-fA-F]{" << 2 * digestByteLength << "}";
+    std::regex formChecker { ss.str() };
+    std::smatch match;
+    if (!std::regex_search(hexDigestString, match, formChecker))
+    {
+        std::cerr << "Error: Unexpected file format" << std::endl;
+        inFile.close();
+        exit(UNEXPECTED_FILE_FORMAT);
+    }
+
+    referenceHexdigest = hexDigestString;
+    inFile.close();
+}
+
+bool Hasher::verifyHash()
+{
+    if (hexdigest() == referenceHexdigest)
+    {
+        return true;
+    }
+    return false;
 }

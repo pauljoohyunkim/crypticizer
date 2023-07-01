@@ -13,21 +13,23 @@ int main()
 
     // Generating salt test
     hasher.generateSalt(10);
-
-    // Clear salt
-    hasher.setSalt(std::string());
-
     // Test Message
     std::string mess { "Test Message" };
     auto digest = hasher.digestWithSalt(mess);
 
     std::cout << "Hasher1 Hexdigest: " << hasher.hexdigest() << std::endl;
 
-    hasher2.setSalt(std::string());
-    hasher2.setDigest(digest);
-    std::cout << "Hasher2 Hexdigest: " << hasher2.hexdigest() << std::endl;
+    //hasher2.setSalt(std::string());
+    //hasher2.setDigest(digest);
+    //std::cout << "Hasher2 Hexdigest: " << hasher2.hexdigest() << std::endl;
 
     std::filesystem::path path { "./test.txt" };    
     hasher.dumpHexdigestToFile(path);
+
+    // Retrieval
+    hasher.readHexdigestFile(path, 10);
+    
+    // Verify
+    auto verifyFlag = hasher.verifyHash();
     return 0;
 }
