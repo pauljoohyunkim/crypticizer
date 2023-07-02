@@ -6,13 +6,16 @@
 #include <filesystem>
 #include <openssl/evp.h>
 
-class Cryptor
+class LogCryptor
 {
     public:
-        Cryptor(std::filesystem::path path);
-        Cryptor(std::string path);
+        LogCryptor(std::filesystem::path path);
+        LogCryptor(std::string path);
+
+        std::string generateIV(unsigned int byteLength);
     private:
-        std::string pathString {};
+        std::string logPathString {};
+        std::string iv {};
 
 };
 

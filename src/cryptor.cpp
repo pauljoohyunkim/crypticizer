@@ -19,15 +19,32 @@ static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigne
     { HFT_SHA512, { "sha512", 512 } }
 };
 
-Cryptor::Cryptor(std::filesystem::path path)
+LogCryptor::LogCryptor(std::filesystem::path path)
 {
-    pathString = path.string();
+    logPathString = path.string();
 }
 
-Cryptor::Cryptor(std::string path)
+LogCryptor::LogCryptor(std::string path)
 {
-    pathString = path;
+    logPathString = path;
 }
+
+std::string LogCryptor::generateIV(unsigned int byteLength)
+{
+    auto buf = new unsigned char[byteLength];
+
+    RAND_bytes(buf, byteLength);
+    std::string ivString { buf, buf + byteLength };
+    delete [] buf;
+
+    iv = ivString;
+    return iv;
+}
+
+
+
+
+
 
 Hasher::Hasher(HashFunctionType hft)
 {

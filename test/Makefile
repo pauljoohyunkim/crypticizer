@@ -1,6 +1,9 @@
 CXX=g++
 CXXFLAGS=-g -Wall
 
+aeadtest: aeadtest.cpp ../src/cryptor.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ `pkg-config --libs openssl`
+
 hashertest: hashertest.cpp ../src/cryptor.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ `pkg-config --libs openssl`
 
