@@ -45,6 +45,7 @@ std::string LogCryptor::generateIV(unsigned int byteLength)
     return iv;
 }
 
+// https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode
 void LogCryptor::encrypt(std::string infilename, std::string outfilename)
 {
     // Getting file info
@@ -113,6 +114,7 @@ void LogCryptor::encrypt(std::string infilename, std::string outfilename)
 
     // Export
     std::ofstream outFile { outfilename, std::ofstream::binary};
+    // IV + CIPHERTEXT + Tag (16 bytes)
     outFile << iv << ciphertextString << tagString;
 
     delete [] plaintext;
