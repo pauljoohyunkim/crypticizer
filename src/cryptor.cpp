@@ -217,6 +217,20 @@ void Hasher::dumpHexdigestToFile(std::filesystem::path path)
     outFile.close();
 }
 
+
+static std::string hexToRaw(std::string hexstring)
+{
+    std::string rawstring {};
+    for (unsigned int i = 0; i < hexstring.length(); i += 2)
+    {
+        std::string byteString = hexstring.substr(i, 2);
+        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
+        rawstring += byte;
+    }
+
+    return rawstring;
+}
+
 Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen)
 {
     Hasher hasher { hft };
@@ -267,15 +281,7 @@ Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsig
     return hasher;
 }
 
-static std::string hexToRaw(std::string hexstring)
+std::string scryptKDF(std::string key, unsigned int keyExpandedLength)
 {
-    std::string rawstring {};
-    for (unsigned int i = 0; i < hexstring.length(); i += 2)
-    {
-        std::string byteString = hexstring.substr(i, 2);
-        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
-        rawstring += byte;
-    }
-
-    return rawstring;
+	return std::string("Hello");
 }
