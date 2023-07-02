@@ -8,6 +8,8 @@
 #include <tuple>
 #include <regex>
 #include <openssl/rand.h>
+#include <openssl/kdf.h>
+#include <openssl/evp.h>
 #include "cryptor.h"
 #include "errorcodes.h"
 
@@ -281,7 +283,38 @@ Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsig
     return hasher;
 }
 
-std::string scryptKDF(std::string key, unsigned int keyExpandedLength)
+std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::string salt)
 {
-	return std::string("Hello");
+    EVP_KDF* kdf;
+    EVP_KDF_CTX* kctx;
+
+    auto buf = new unsigned char [keyExpandedLength];
+    OSSL_PARAM params[6];
+
+    kdf = EVP_KDF_fetch(NULL, "SCRYPT", NULL);
+    kctx = EVP_KDF_CTX_new(kdf);
+    EVP_KDF_free(kdf);
+
+    uint64_t n = 1024;
+    uint32_t r = 8;
+    uint32_t p = 16;
+    params[0] = OSSL_PARAM_construct_octet_string("pass",
+            (void*)key.c_str(), (size_t)key.length());
+    params[1] = OSSL_PARAM_construct_octet_string("salt",
+            (void*)salt.c_str(), (size_t)salt.length());
+    params[2] = OSSL_PARAM_construct_uint64("n", &n);
+    params[3] = OSSL_PARAM_construct_uint32("r", &r);
+    params[4] = OSSL_PARAM_construct_uint32("p", &p);
+    params[5] = OSSL_PARAM_construct_end();
+
+    if (EVP_KDF_derive(kctx, buf, keyExpandedLength, params) <= 0)
+    {
+        delete [] buf;
+        std::cerr << "Error: Could not compute Scrypt key derivation function" << std::endl;
+        exit(SCRYPT_ERROR);
+    }
+    std::string expandedKey { buf, buf+keyExpandedLength };
+    delete [] buf;
+    EVP_KDF_CTX_free(kctx);
+	return expandedKey;
 }

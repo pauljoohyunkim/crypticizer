@@ -57,6 +57,6 @@ class Hasher
 };
 
 Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen);
-std::string scryptKDF(std::string key, unsigned int keyExpandedLength);
+std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::string salt);
 
 #endif
