@@ -45,10 +45,10 @@ std::string LogCryptor::generateIV(unsigned int byteLength)
     return iv;
 }
 
-void LogCryptor::encrypt(std::string filename)
+void LogCryptor::encrypt(std::string infilename, std::string outfilename)
 {
     // Getting file info
-    std::ifstream inFile { filename };
+    std::ifstream inFile { infilename };
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
@@ -107,6 +107,13 @@ void LogCryptor::encrypt(std::string filename)
     }
 
     EVP_CIPHER_CTX_free(ctx);
+
+    std::string ciphertextString { ciphertext, ciphertext + ciphertext_len };
+    std::string tagString { tag, tag + 16 };
+
+    // Export
+    std::ofstream outFile { outfilename, std::ofstream::binary};
+    outFile << iv << ciphertextString << tagString;
 
     delete [] plaintext;
     delete [] ciphertext;
