@@ -11,6 +11,7 @@
 #include <openssl/kdf.h>
 #include <openssl/evp.h>
 #include "cryptor.h"
+#include "session.h"
 #include "errorcodes.h"
 
 static std::string hexToRaw(std::string hexstring);
@@ -52,9 +53,9 @@ void LogCryptor::encrypt()
         0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33,
         0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31
     };
-    unsigned char iv[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
-                          0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35
-                        };
+    //unsigned char iv[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+    //                      0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35
+    //                    };
 
     unsigned char ciphertext[32] = { 0 };
     unsigned char plaintext[100] = "Hello World!";
@@ -74,13 +75,13 @@ void LogCryptor::encrypt()
         std::cerr << "EVP_EncryptInit_ex()" << std::endl;
     }
 
-    if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, 16, NULL))
+    if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, iv.length(), NULL))
     {
         std::cerr << "EVP_CIPHER_CTX_ctrl()" << std::endl;
     }
 
     // Initialization of key and iv
-    if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, key, iv))
+    if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, (unsigned char*) password.c_str(), (unsigned char*) iv.c_str()))
     {
         std::cerr << "EVP_EncryptInit_ex" << std::endl;
     }
