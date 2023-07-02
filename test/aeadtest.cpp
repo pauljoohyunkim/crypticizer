@@ -4,9 +4,9 @@ int main()
 {
     LogCryptor logcryptor { std::string("password"), std::string("NaCl") };
 
-    logcryptor.generateIV(10);
+    logcryptor.generateIV(12);
 
-    logcryptor.encrypt();
+    logcryptor.encrypt(std::string("test.txt"));
 
     return 0;
 }

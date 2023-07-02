@@ -16,9 +16,9 @@ class LogCryptor
         void setLog(Log alog);
 
         std::string generateIV(unsigned int byteLength);
-        void encrypt();
+        void encrypt(std::string filename);
     private:
-        std::string logPathString {};
+        //std::string logPathString {};
         std::string iv {};
         std::string password {};
         std::string salt {};

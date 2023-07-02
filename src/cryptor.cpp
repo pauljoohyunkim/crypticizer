@@ -45,21 +45,21 @@ std::string LogCryptor::generateIV(unsigned int byteLength)
     return iv;
 }
 
-void LogCryptor::encrypt()
+void LogCryptor::encrypt(std::string filename)
 {
-    auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
-    unsigned char key[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
-        0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35,
-        0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33,
-        0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31
-    };
-    //unsigned char iv[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
-    //                      0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35
-    //                    };
+    // Getting file info
+    std::ifstream inFile { filename };
+    inFile.seekg(0, inFile.end);
+    unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
+    inFile.seekg(0, inFile.beg);
+    auto plaintext = new char [filelength];
+    auto plaintext_len = filelength;
+    // Read plaintext
+    inFile.read(plaintext, plaintext_len);
 
-    unsigned char ciphertext[32] = { 0 };
-    unsigned char plaintext[100] = "Hello World!";
-    int plaintext_len { 12 };
+    auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
+    auto ciphertext = new unsigned char [plaintext_len];
+    //unsigned char ciphertext[32] = { 0 };
     
     EVP_CIPHER_CTX* ctx;
     int len;
@@ -86,7 +86,7 @@ void LogCryptor::encrypt()
         std::cerr << "EVP_EncryptInit_ex" << std::endl;
     }
     
-    if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
+    if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, (unsigned char*) plaintext, plaintext_len))
     {
         std::cerr << "EVP_EncryptUpdate" << std::endl;
     }
@@ -99,7 +99,7 @@ void LogCryptor::encrypt()
     }
     ciphertext_len += len;
 
-    unsigned char tag[100];
+    unsigned char tag[16];
 
     if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, tag))
     {
@@ -107,6 +107,9 @@ void LogCryptor::encrypt()
     }
 
     EVP_CIPHER_CTX_free(ctx);
+
+    delete [] plaintext;
+    delete [] ciphertext;
 }
 
 
