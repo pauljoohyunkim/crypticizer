@@ -41,6 +41,7 @@ class Session
 class Log
 {
     public:
+        Log();
         Log(std::filesystem::path alogpath);
         Log(std::filesystem::path alogpath, std::time_t atimer);
 

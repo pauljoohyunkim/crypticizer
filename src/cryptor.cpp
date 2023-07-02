@@ -21,14 +21,10 @@ static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigne
     { HFT_SHA512, { "sha512", 512 } }
 };
 
-LogCryptor::LogCryptor(std::filesystem::path path)
+LogCryptor::LogCryptor(std::string pass, std::string asalt)
 {
-    logPathString = path.string();
-}
-
-LogCryptor::LogCryptor(std::string path)
-{
-    logPathString = path;
+    password = pass;
+    salt = asalt;
 }
 
 std::string LogCryptor::generateIV(unsigned int byteLength)

@@ -5,18 +5,21 @@
 #include <string>
 #include <filesystem>
 #include <openssl/evp.h>
+#include "session.h"
 
 class LogCryptor
 {
     public:
-        LogCryptor(std::filesystem::path path);
-        LogCryptor(std::string path);
+        LogCryptor(std::string pass, std::string asalt);
 
         std::string generateIV(unsigned int byteLength);
         void encrypt();
     private:
         std::string logPathString {};
         std::string iv {};
+        std::string password {};
+        std::string salt {};
+        Log log;
 
 };
 

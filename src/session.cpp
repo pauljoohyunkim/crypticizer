@@ -61,6 +61,11 @@ static bool logCompare(Log log1, Log log2)
     return std::stoi(fn1) < std::stoi(fn2);
 }
 
+Log::Log()
+{
+    timer = time(nullptr);
+}
+
 Log::Log(std::filesystem::path alogpath)
 {
     logpath = alogpath;
