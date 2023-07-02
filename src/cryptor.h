@@ -13,6 +13,7 @@ class LogCryptor
         LogCryptor(std::string path);
 
         std::string generateIV(unsigned int byteLength);
+        void encrypt();
     private:
         std::string logPathString {};
         std::string iv {};

@@ -6,5 +6,7 @@ int main()
 
     logcryptor.generateIV(10);
 
+    logcryptor.encrypt();
+
     return 0;
 }

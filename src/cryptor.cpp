@@ -41,6 +41,69 @@ std::string LogCryptor::generateIV(unsigned int byteLength)
     return iv;
 }
 
+void LogCryptor::encrypt()
+{
+    unsigned char key[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+        0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35,
+        0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33,
+        0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31
+    };
+    unsigned char iv[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+                          0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35
+                        };
+
+    unsigned char ciphertext[32] = { 0 };
+    unsigned char plaintext[100] = "Hello World!";
+    int plaintext_len { 12 };
+    
+    EVP_CIPHER_CTX* ctx;
+    int len;
+    int ciphertext_len;
+
+    if(!(ctx = EVP_CIPHER_CTX_new()))
+    {
+        std::cerr<< "EVP_CIPHER_CTX_new()" << std::endl;
+    }
+
+    if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
+    {
+        std::cerr << "EVP_EncryptInit_ex()" << std::endl;
+    }
+
+    if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, 16, NULL))
+    {
+        std::cerr << "EVP_CIPHER_CTX_ctrl()" << std::endl;
+    }
+
+    // Initialization of key and iv
+    if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, key, iv))
+    {
+        std::cerr << "EVP_EncryptInit_ex" << std::endl;
+    }
+    
+    if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
+    {
+        std::cerr << "EVP_EncryptUpdate" << std::endl;
+    }
+    ciphertext_len = len;
+
+    // Finalization
+    if (1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len))
+    {
+        std::cerr << "EVP_EncryptFinal_ex" << std::endl;
+    }
+    ciphertext_len += len;
+
+    unsigned char tag[100];
+
+    if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, tag))
+    {
+        std::cerr << "EVP_CIPHER_CTX_ctrl" << std::endl;
+    }
+
+    EVP_CIPHER_CTX_free(ctx);
+}
+
 
 
 
