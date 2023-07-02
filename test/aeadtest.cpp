@@ -2,7 +2,7 @@
 
 int main()
 {
-    LogCryptor logcryptor { std::string("test.txt") };
+    LogCryptor logcryptor { std::string("password"), std::string("NaCl") };
 
     logcryptor.generateIV(10);
 

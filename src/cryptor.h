@@ -12,6 +12,9 @@ class LogCryptor
     public:
         LogCryptor(std::string pass, std::string asalt);
 
+        // Set Log
+        void setLog(Log alog);
+
         std::string generateIV(unsigned int byteLength);
         void encrypt();
     private:

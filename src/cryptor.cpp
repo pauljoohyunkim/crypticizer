@@ -27,6 +27,11 @@ LogCryptor::LogCryptor(std::string pass, std::string asalt)
     salt = asalt;
 }
 
+void LogCryptor::setLog(Log alog)
+{
+    log = alog;
+}
+
 std::string LogCryptor::generateIV(unsigned int byteLength)
 {
     auto buf = new unsigned char[byteLength];
@@ -41,6 +46,7 @@ std::string LogCryptor::generateIV(unsigned int byteLength)
 
 void LogCryptor::encrypt()
 {
+    auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
     unsigned char key[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
         0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35,
         0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33,
