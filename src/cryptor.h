@@ -22,6 +22,7 @@ class LogCryptor
         void encrypt(std::string infilename, std::string outfilename);
         void decrypt(std::string infilename, std::string outfilename, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
         std::FILE* createTempFile();
+        void cleanupTempFile();
     private:
         std::string iv {};
         std::string password {};

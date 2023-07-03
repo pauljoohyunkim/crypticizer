@@ -6,7 +6,7 @@ int main()
     LogCryptor logcryptor { std::string("test.txt"), std::string("salt") };
     auto filehandle = logcryptor.createTempFile();
 
-    std::fclose(filehandle);
+    logcryptor.cleanupTempFile();
 
     return 0;
 }

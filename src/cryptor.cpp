@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <unistd.h>
 #include <openssl/rand.h>
 #include <openssl/kdf.h>
 #include <openssl/evp.h>
@@ -222,6 +223,15 @@ std::FILE* LogCryptor::createTempFile()
     delete [] tmpfilename;
 
     return tempfileHandle;
+}
+
+void LogCryptor::cleanupTempFile()
+{
+    // Close file
+    std::fclose(tempfileHandle);
+
+    // Clean up
+    unlink(currentTEMPFilePath.c_str());
 }
 
 
