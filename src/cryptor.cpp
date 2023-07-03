@@ -7,6 +7,9 @@
 #include <unordered_map>
 #include <tuple>
 #include <regex>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
 #include <openssl/rand.h>
 #include <openssl/kdf.h>
 #include <openssl/evp.h>
@@ -201,6 +204,24 @@ void LogCryptor::decrypt(std::string infilename, std::string outfilename, unsign
     std::ofstream outFile { outfilename };
     outFile << plaintextString;
     outFile.close();
+}
+
+std::FILE* LogCryptor::createTempFile()
+{
+    auto tmpdirPath { std::filesystem::temp_directory_path() };
+    auto tmpfilePath { tmpdirPath/std::string("crypticizer.XXXXXX") };
+    auto tmpfilePathLength { tmpfilePath.string().length() };
+    auto tmpfilename = new char [tmpfilePathLength + 1];
+    tmpfilename[tmpfilePathLength] = '\0';
+    strcpy(tmpfilename, tmpfilePath.string().c_str());
+
+    // Create temp file
+    auto fd = mkstemp(tmpfilename);
+    tempfileHandle = fdopen(fd, "w");
+    currentTEMPFilePath = std::string(tmpfilename);
+    delete [] tmpfilename;
+
+    return tempfileHandle;
 }
 
 
