@@ -140,11 +140,62 @@ void LogCryptor::decrypt(std::string infilename, std::string outfilename, unsign
     iv = std::string { infilecontent, infilecontent + ivLen };
     std::string ciphertext { infilecontent + ivLen, infilecontent + ivLen + ciphertext_len };
     std::string tag { infilecontent + ivLen + ciphertext_len, infilecontent + filelength };
-    
-
-    //EVP_CIPHER_CTX* ctx;
-
     delete [] infilecontent;
+
+    auto plaintext = new unsigned char [ciphertext_len];
+    int plaintext_len;
+    int len;
+    int ret;
+
+    EVP_CIPHER_CTX* ctx;
+
+    if(!(ctx = EVP_CIPHER_CTX_new()))
+    {
+        std::cerr<< "EVP_CIPHER_CTX_new()" << std::endl;
+    }
+
+    if(!EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
+    {
+        std::cerr << "EVP_DecryptInit_ex()" << std::endl;
+    }
+
+    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, iv.length(), NULL))
+    {
+        std::cerr << "EVP_CIPHER_CTX_ctrl()" << std::endl;
+    }
+
+    // Initialization of key and iv
+    if (!EVP_DecryptInit_ex(ctx, NULL, NULL, (unsigned char*) password.c_str(), (unsigned char*) iv.c_str()))
+    {
+        std::cerr << "EVP_DecryptInit_ex" << std::endl;
+    }
+
+    if (!EVP_DecryptUpdate(ctx, plaintext, &len, (unsigned char*) ciphertext.c_str(), ciphertext_len))
+    {
+        std::cerr << "EVP_EncryptUpdate" << std::endl;
+    }
+    plaintext_len = len;
+
+    if(!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, tagLen, (unsigned char*) tag.c_str()))
+    {
+        std::cerr << "EVP_CIPHER_CTX_ctrl" << std::endl;
+    }
+
+    // Return value
+    ret = EVP_DecryptFinal_ex(ctx, plaintext + len, &len);
+
+    /* Clean up */
+    EVP_CIPHER_CTX_free(ctx);
+
+    if(ret > 0) {
+        /* Success */
+        plaintext_len += len;
+    } else {
+        /* Verify failed */
+        std::cerr << "Verification failed, not trustworthy" << std::endl;
+    }
+    std::string plaintextString { plaintext, plaintext + plaintext_len };
+    delete [] plaintext;
 }
 
 
