@@ -196,6 +196,11 @@ void LogCryptor::decrypt(std::string infilename, std::string outfilename, unsign
     }
     std::string plaintextString { plaintext, plaintext + plaintext_len };
     delete [] plaintext;
+
+    // Output file
+    std::ofstream outFile { outfilename };
+    outFile << plaintextString;
+    outFile.close();
 }
 
 

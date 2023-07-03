@@ -6,9 +6,9 @@ int main()
 
     logcryptor.generateIV();
 
-    logcryptor.encrypt(std::string("test.txt"), std::string("test.txt.encrpted"));
+    logcryptor.encrypt(std::string("test.txt"), std::string("test.txt.encrypted"));
 
-    logcryptor.decrypt(std::string("test.txt.encrpted"), std::string("test.txt.decrypted"));
+    logcryptor.decrypt(std::string("test.txt.encrypted"), std::string("test.txt.decrypted"));
 
     return 0;
 }
