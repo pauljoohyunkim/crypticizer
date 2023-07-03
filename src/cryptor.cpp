@@ -100,9 +100,9 @@ void LogCryptor::encrypt(std::string infilename, std::string outfilename)
     }
     ciphertext_len += len;
 
-    unsigned char tag[16];
+    unsigned char tag[CRYPTOR_TAG_LEN];
 
-    if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, tag))
+    if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, CRYPTOR_TAG_LEN, tag))
     {
         std::cerr << "EVP_CIPHER_CTX_ctrl" << std::endl;
     }
@@ -110,7 +110,7 @@ void LogCryptor::encrypt(std::string infilename, std::string outfilename)
     EVP_CIPHER_CTX_free(ctx);
 
     std::string ciphertextString { ciphertext, ciphertext + ciphertext_len };
-    std::string tagString { tag, tag + 16 };
+    std::string tagString { tag, tag + CRYPTOR_TAG_LEN };
 
     // Export
     std::ofstream outFile { outfilename, std::ofstream::binary};
@@ -119,6 +119,32 @@ void LogCryptor::encrypt(std::string infilename, std::string outfilename)
 
     delete [] plaintext;
     delete [] ciphertext;
+}
+
+void LogCryptor::decrypt(std::string infilename, std::string outfilename, unsigned int ivLen, unsigned int tagLen)
+{
+    // Input file info (Note: IV + Ciphertext + Tag (16 bytes)
+    std::ifstream inFile { infilename, std::ifstream::binary };
+    inFile.seekg(0, inFile.end);
+    unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
+    inFile.seekg(0, inFile.beg);
+    auto infilecontent = new char [filelength];
+    auto infilecontent_len = filelength;
+    // Read encrypted file
+    inFile.read(infilecontent, infilecontent_len);
+
+    // Ciphertext length
+    unsigned int ciphertext_len = infilecontent_len - ivLen - tagLen;
+
+    // Set IV, Ciphertext, Tag
+    iv = std::string { infilecontent, infilecontent + ivLen };
+    std::string ciphertext { infilecontent + ivLen, infilecontent + ivLen + ciphertext_len };
+    std::string tag { infilecontent + ivLen + ciphertext_len, infilecontent + filelength };
+    
+
+    //EVP_CIPHER_CTX* ctx;
+
+    delete [] infilecontent;
 }
 
 

@@ -7,6 +7,9 @@
 #include <openssl/evp.h>
 #include "session.h"
 
+#define CRYPTOR_IV_LEN 12
+#define CRYPTOR_TAG_LEN 16
+
 class LogCryptor
 {
     public:
@@ -15,8 +18,9 @@ class LogCryptor
         // Set Log
         void setLog(Log alog);
 
-        std::string generateIV(unsigned int byteLength);
+        std::string generateIV(unsigned int byteLength=CRYPTOR_IV_LEN);
         void encrypt(std::string infilename, std::string outfilename);
+        void decrypt(std::string infilename, std::string outfilename, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
     private:
         //std::string logPathString {};
         std::string iv {};
