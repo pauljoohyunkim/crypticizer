@@ -3,7 +3,7 @@
 
 int main()
 {
-    LogCryptor logcryptor { std::string("password"), std::string("NaCl") };
+    LogCryptor logcryptor { std::string("password") };
     logcryptor.setLog(Log(std::string("."), (time_t) 1));
 
     logcryptor.createTempFile();

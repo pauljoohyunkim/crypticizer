@@ -26,10 +26,17 @@ static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigne
     { HFT_SHA512, { "sha512", 512 } }
 };
 
-LogCryptor::LogCryptor(std::string pass, std::string asalt)
+LogCryptor::LogCryptor(std::string pass)
 {
     password = pass;
-    salt = asalt;
+}
+
+void LogCryptor::generateSalt(unsigned int saltByteLen)
+{
+    // Reusing the salt generator from Hasher
+    Hasher hasher { HFT_SHA512 };
+    hasher.generateSalt(saltByteLen);
+    salt = hasher.getSalt();
 }
 
 void LogCryptor::setLog(Log alog)
@@ -62,6 +69,11 @@ void LogCryptor::encrypt()
     auto plaintext_len = filelength;
     // Read plaintext
     inFile.read(plaintext, plaintext_len);
+    // Generate salt if not already generated
+    if (salt.empty())
+    {
+        generateSalt();
+    }
     // Generate IV if not already generated
     if (iv.empty())
     {
@@ -91,7 +103,7 @@ void LogCryptor::encrypt()
     }
 
     // Initialization of key and iv
-    if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, (unsigned char*) password.c_str(), (unsigned char*) iv.c_str()))
+    if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, (unsigned char*) expandedKey.c_str(), (unsigned char*) iv.c_str()))
     {
         std::cerr << "EVP_EncryptInit_ex" << std::endl;
     }
@@ -124,18 +136,18 @@ void LogCryptor::encrypt()
     // Export
     auto outfilename = log.logpath.string();
     std::ofstream outFile { outfilename, std::ofstream::binary};
-    // IV + CIPHERTEXT + Tag (16 bytes)
-    outFile << iv << ciphertextString << tagString;
+    // Salt + IV + CIPHERTEXT + Tag (16 bytes)
+    outFile << salt << iv << ciphertextString << tagString;
 
     delete [] plaintext;
     delete [] ciphertext;
     cleanupTempFile();
 }
 
-void LogCryptor::decrypt(unsigned int ivLen, unsigned int tagLen)
+void LogCryptor::decrypt(unsigned int saltLen, unsigned int ivLen, unsigned int tagLen)
 {
     auto infilename { log.logpath.string() };
-    // Input file info (Note: IV + Ciphertext + Tag (16 bytes)
+    // Input file info (Note: Salt + IV + Ciphertext + Tag (16 bytes)
     std::ifstream inFile { infilename, std::ifstream::binary };
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
@@ -146,13 +158,16 @@ void LogCryptor::decrypt(unsigned int ivLen, unsigned int tagLen)
     inFile.read(infilecontent, infilecontent_len);
 
     // Ciphertext length
-    unsigned int ciphertext_len = infilecontent_len - ivLen - tagLen;
+    unsigned int ciphertext_len = infilecontent_len - ivLen - tagLen - saltLen;
 
     // Set IV, Ciphertext, Tag
-    iv = std::string { infilecontent, infilecontent + ivLen };
-    std::string ciphertext { infilecontent + ivLen, infilecontent + ivLen + ciphertext_len };
-    std::string tag { infilecontent + ivLen + ciphertext_len, infilecontent + filelength };
+    salt = std::string { infilecontent, infilecontent + saltLen };
+    iv = std::string { infilecontent + saltLen, infilecontent + saltLen + ivLen };
+    std::string ciphertext { infilecontent + saltLen + ivLen, infilecontent + saltLen + ivLen + ciphertext_len };
+    std::string tag { infilecontent + saltLen + ivLen + ciphertext_len, infilecontent + filelength };
     delete [] infilecontent;
+
+    auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
 
     auto plaintext = new unsigned char [ciphertext_len];
     int plaintext_len;
@@ -177,7 +192,7 @@ void LogCryptor::decrypt(unsigned int ivLen, unsigned int tagLen)
     }
 
     // Initialization of key and iv
-    if (!EVP_DecryptInit_ex(ctx, NULL, NULL, (unsigned char*) password.c_str(), (unsigned char*) iv.c_str()))
+    if (!EVP_DecryptInit_ex(ctx, NULL, NULL, (unsigned char*) expandedKey.c_str(), (unsigned char*) iv.c_str()))
     {
         std::cerr << "EVP_DecryptInit_ex" << std::endl;
     }
