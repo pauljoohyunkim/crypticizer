@@ -2,6 +2,7 @@
 #include <ctime>
 #include <filesystem>
 #include <algorithm>
+#include <sstream>
 #include "session.h"
 
 static bool logCompare(Log log1, Log log2);
@@ -63,16 +64,29 @@ static bool logCompare(Log log1, Log log2)
 
 Log::Log()
 {
-    timer = time(nullptr);
+    refreshTime();
+    generateLogPathFromTimer();
 }
 
-Log::Log(std::filesystem::path alogpath)
+Log::Log(std::filesystem::path rootpath)
 {
-    logpath = alogpath;
+    refreshTime();
+    generateLogPathFromTimer();
+    logpath = rootpath/logpath;
+}
+Log::Log(std::filesystem::path rootpath, std::time_t atimer)
+{
+    timer = atimer;
+    generateLogPathFromTimer();
+    logpath = rootpath/logpath;
+}
+void Log::refreshTime()
+{
     timer = time(nullptr);
 }
-Log::Log(std::filesystem::path alogpath, std::time_t atimer)
+void Log::generateLogPathFromTimer()
 {
-    logpath = alogpath;
-    timer = atimer;
+    std::stringstream ss;
+    ss << timer << ".crpt";
+    logpath = std::filesystem::path(ss.str());
 }

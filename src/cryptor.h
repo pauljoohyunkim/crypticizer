@@ -19,7 +19,7 @@ class LogCryptor
         void setLog(Log alog);
 
         std::string generateIV(unsigned int byteLength=CRYPTOR_IV_LEN);
-        void encrypt(std::string infilename, std::string outfilename);
+        void encrypt();
         void decrypt(unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
         
         // Creates temp file at /tmp/crypticizer.XXXXXX then returns the path to it

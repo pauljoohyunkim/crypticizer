@@ -42,8 +42,11 @@ class Log
 {
     public:
         Log();
-        Log(std::filesystem::path alogpath);
-        Log(std::filesystem::path alogpath, std::time_t atimer);
+        Log(std::filesystem::path rootpath);
+        Log(std::filesystem::path rootpath, std::time_t atimer);
+
+        void refreshTime();
+        void generateLogPathFromTimer();
 
         std::filesystem::path logpath {};
     private:
