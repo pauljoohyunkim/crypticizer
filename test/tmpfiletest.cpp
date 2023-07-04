@@ -1,13 +1,15 @@
 #include "../src/session.h"
 #include "../src/cryptor.h"
+#include <filesystem>
 
 int main()
 {
-    std::string inputFileName { "test.txt.encrypted" };
+    Log log { std::filesystem::path("test.txt.encrypted") };
     std::string password { "password" };
     std::string salt { "NaCl" };
     LogCryptor logcryptor { password, salt };
-    logcryptor.decrypt(inputFileName);
+    logcryptor.setLog(log);
+    logcryptor.decrypt();
 
     logcryptor.cleanupTempFile();
 

@@ -125,8 +125,9 @@ void LogCryptor::encrypt(std::string infilename, std::string outfilename)
     delete [] ciphertext;
 }
 
-void LogCryptor::decrypt(std::string infilename, unsigned int ivLen, unsigned int tagLen)
+void LogCryptor::decrypt(unsigned int ivLen, unsigned int tagLen)
 {
+    auto infilename { log.logpath.string() };
     // Input file info (Note: IV + Ciphertext + Tag (16 bytes)
     std::ifstream inFile { infilename, std::ifstream::binary };
     inFile.seekg(0, inFile.end);
@@ -208,7 +209,7 @@ void LogCryptor::decrypt(std::string infilename, unsigned int ivLen, unsigned in
     tempfileHandleClosed = true;
 }
 
-void LogCryptor::createTempFile()
+std::string LogCryptor::createTempFile()
 {
     auto tmpdirPath { std::filesystem::temp_directory_path() };
     auto tmpfilePath { tmpdirPath/std::string("crypticizer.XXXXXX") };
@@ -224,6 +225,7 @@ void LogCryptor::createTempFile()
     delete [] tmpfilename;
 
     tempfileHandleClosed = false;
+    return currentTEMPFilePath;
 }
 
 void LogCryptor::cleanupTempFile()
