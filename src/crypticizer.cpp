@@ -3,9 +3,11 @@
 #include <iostream>
 #include <filesystem>
 #include <unistd.h>
+#include <termios.h>
 #include <sys/wait.h>
 #include <regex>
 #include "crypticizer.h"
+#include "cryptor.h"
 #include "session.h"
 #include "errorcodes.h"
 #include "menu.h"
@@ -13,6 +15,8 @@
 namespace fs = std::filesystem;
 
 static void detectSession(Session& session, fs::path rootdir);
+static std::string getPassword(bool verify=false);
+static void newProjectMessage();
 static void loadSession(Session& session);
 static void launchSession(Session& session);
 static void launchEditor(std::string textEditorProgram, std::string filename);
@@ -65,11 +69,49 @@ static void detectSession(Session& session, fs::path rootdir)
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
     }
     auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
+    auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
 
     // Check for .crypticizer directory in the CWD
     if (fs::exists(crypticizierDirectory))
     {
         session.setSessionPath(rootdir);
+        // Check if the hash file exists.
+        if (fs::exists(hashfilepath))
+        {
+            // If it does, read it, and ask for password.
+            auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
+            auto password = getPassword(false);
+            Hasher hasher { HASHFUNCTION };
+            auto salt = referenceHasher.getSalt();
+            // Set salt and digest
+            hasher.setSalt(salt);
+            hasher.digestWithSalt(password);
+            if (referenceHasher.hexsaltdigest() != hasher.hexsaltdigest())
+            {
+                //Password not matched!
+                std::cerr << "Error: Wrong password!" << std::endl;
+                exit(WRONG_PASSWORD);
+            }
+            else
+            {
+                session.setSessionPassword(password);
+            }
+        }
+        else
+        {
+            //Otherwise, create hashfile
+
+            newProjectMessage();
+            session.setSessionPath(rootdir);
+            auto password = getPassword(true);
+            session.setSessionPassword(password);
+            // Create hash file
+            Hasher hasher { HASHFUNCTION };
+            hasher.generateSalt(HASH_SALT_N_BYTES);
+            hasher.digestWithSalt(password);
+            hasher.dumpHexdigestToFile(hashfilepath);
+        }
+
     }
     else
     {
@@ -83,8 +125,52 @@ static void detectSession(Session& session, fs::path rootdir)
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
+        newProjectMessage();
         session.setSessionPath(rootdir);
+        auto password = getPassword(true);
+        session.setSessionPassword(password);
+        // Create hash file
+        Hasher hasher { HASHFUNCTION };
+        hasher.generateSalt(HASH_SALT_N_BYTES);
+        hasher.digestWithSalt(password);
+        hasher.dumpHexdigestToFile(hashfilepath);
     }
+}
+
+static std::string getPassword(bool verify)
+{
+    std::cout << "Enter password: " << std::flush;
+
+    termios old_settings, new_settings;
+    tcgetattr(STDIN_FILENO, &old_settings);
+    new_settings = old_settings;
+    new_settings.c_lflag &= ~(ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
+
+    std::string pass;
+    std::getline(std::cin, pass);
+
+    if (verify)
+    {
+        std::string pass2;
+        std::cout << std::endl << "Enter the password again: " << std::flush;
+        std::getline(std::cin, pass2);
+        if (pass != pass2)
+        {
+            std::cout << std::endl;
+            std::cerr << "Error: Passwords do not match!" << std::endl;
+            tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+            exit(PASSWORD_DO_NOT_MATCH);
+        }
+    }
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+    return pass;
+}
+
+static void newProjectMessage()
+{
+    std::cout << "Creating new project..." << std::endl;
+    std::cout << "WARNING: It is YOUR responsibility to remember your own damn password!" << std::endl;
 }
 
 static void loadSession(Session& session)
@@ -102,10 +188,11 @@ static void loadSession(Session& session)
         {
             auto fp { filepath.path() };
             auto timestamp { (std::time_t) std::stoi(fp.stem()) };
-            session.addLog(fp, timestamp);
+            session.addLog(timestamp);
         }
     }
 }
+
 
 static void launchSession(Session& session)
 {
@@ -158,12 +245,39 @@ static void launchSession(Session& session)
         {
             menu.highlightLastEntryInTheFrame();
         }
+        else if (c == '+')
+        {
+            // Creating new log
+            std::string textEditor { "vim" };
+            LogCryptor lc { session.getSessionPassword() };
+            Log log { session.getSessionPath() };
+            lc.setLog(log);
+
+            // Create new temporary file
+            std::string tempentryPathString = lc.createTempFile();
+            // Allow editing
+            launchEditor(textEditor, tempentryPathString);
+
+            // Encrypt
+            lc.encrypt();
+        }
         else if (c == '\n')
         {
-            printw("%d", menu.getEntryIndex());
             std::string textEditor { "vim" };
-            std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
-            launchEditor(textEditor, filename);
+
+            // Get existing log
+            LogCryptor lc { session.getSessionPassword() };
+            lc.setLog(session.getLogs()[menu.getEntryIndex()]);
+            //std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
+            
+            // Decrypting
+            auto tempentryPathString = lc.decrypt();
+
+            // Edit
+            launchEditor(textEditor, tempentryPathString);
+
+            // Encrypt
+            lc.encrypt();
         }
         else if (c == KEY_F(5))
         {
@@ -179,6 +293,8 @@ static void launchSession(Session& session)
 static void launchEditor(std::string textEditorProgram, std::string filename)
 {
 
+    def_prog_mode();
+    endwin();
     // Fork and exec to create child process to the text editor.
     auto pid { fork() };
 
@@ -191,5 +307,7 @@ static void launchEditor(std::string textEditorProgram, std::string filename)
     {
         // Parent
         wait(0);
+        reset_prog_mode();
+        refresh();
     }
 }

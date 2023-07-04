@@ -2,6 +2,7 @@
 #include <ctime>
 #include <filesystem>
 #include <algorithm>
+#include <sstream>
 #include "session.h"
 
 static bool logCompare(Log log1, Log log2);
@@ -11,9 +12,19 @@ void Session::setSessionPath(std::filesystem::path path)
     sessionPath = path;
 }
 
+void Session::setSessionPassword(std::string pass)
+{
+    password = pass;
+}
+
 std::filesystem::path Session::getSessionPath()
 {
     return sessionPath;
+}
+
+std::string Session::getSessionPassword()
+{
+    return password;
 }
 
 std::vector<Log> Session::getLogs()
@@ -21,15 +32,15 @@ std::vector<Log> Session::getLogs()
     return logs;
 }
 
-void Session::addLog(std::filesystem::path p)
+void Session::addLog()
 {
-    Log log { p };
+    Log log { sessionPath };
     logs.push_back(log);
     orderLogs();
 }
-void Session::addLog(std::filesystem::path p, std::time_t timer)
+void Session::addLog(std::time_t timer)
 {
-    Log log { p, timer };
+    Log log { sessionPath, timer };
     logs.push_back(log);
     orderLogs();
 }
@@ -51,13 +62,31 @@ static bool logCompare(Log log1, Log log2)
     return std::stoi(fn1) < std::stoi(fn2);
 }
 
-Log::Log(std::filesystem::path alogpath)
+Log::Log()
 {
-    logpath = alogpath;
+    refreshTime();
+    generateLogPathFromTimer();
+}
+
+Log::Log(std::filesystem::path rootpath)
+{
+    refreshTime();
+    generateLogPathFromTimer();
+    logpath = rootpath/logpath;
+}
+Log::Log(std::filesystem::path rootpath, std::time_t atimer)
+{
+    timer = atimer;
+    generateLogPathFromTimer();
+    logpath = rootpath/logpath;
+}
+void Log::refreshTime()
+{
     timer = time(nullptr);
 }
-Log::Log(std::filesystem::path alogpath, std::time_t atimer)
+void Log::generateLogPathFromTimer()
 {
-    logpath = alogpath;
-    timer = atimer;
+    std::stringstream ss;
+    ss << timer << ".crpt";
+    logpath = std::filesystem::path(ss.str());
 }

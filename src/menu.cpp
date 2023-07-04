@@ -133,6 +133,11 @@ void Menu::draw()
     wclear(win);
     auto entrySize { entries.size() };
     int entrySizeInt { (int) entrySize };
+    if (entrySizeInt == 0)
+    {
+        // If no entry, then do nothing!
+        return;
+    }
     entryIndex = (entryIndex % entrySizeInt + entrySizeInt) % entrySizeInt;
     //printw("entryIndex: %d\t in [%d, %d]\t y:%d\n", entryIndex, entryIndexMin, entryIndexMax, y);
     // Get dimension of the window for the case that
