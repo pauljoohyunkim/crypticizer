@@ -264,6 +264,10 @@ static void launchSession(Session& session)
 
             // Encrypt
             lc.encrypt();
+
+            // Refresh
+            loadSession(session);
+            menuUpdateFromSession(session, menu);
         }
         else if (c == '\n')
         {
@@ -282,6 +286,10 @@ static void launchSession(Session& session)
 
             // Encrypt
             lc.encrypt();
+
+            // Refresh
+            loadSession(session);
+            menuUpdateFromSession(session, menu);
         }
         else if (c == KEY_F(5))
         {
