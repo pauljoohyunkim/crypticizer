@@ -125,6 +125,7 @@ void LogCryptor::encrypt()
 
     delete [] plaintext;
     delete [] ciphertext;
+    cleanupTempFile();
 }
 
 void LogCryptor::decrypt(unsigned int ivLen, unsigned int tagLen)
