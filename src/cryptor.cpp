@@ -144,7 +144,7 @@ void LogCryptor::encrypt()
     cleanupTempFile();
 }
 
-void LogCryptor::decrypt(unsigned int saltLen, unsigned int ivLen, unsigned int tagLen)
+std::string LogCryptor::decrypt(unsigned int saltLen, unsigned int ivLen, unsigned int tagLen)
 {
     auto infilename { log.logpath.string() };
     // Input file info (Note: Salt + IV + Ciphertext + Tag (16 bytes)
@@ -225,10 +225,12 @@ void LogCryptor::decrypt(unsigned int saltLen, unsigned int ivLen, unsigned int 
     delete [] plaintext;
 
     // Output file
-    createTempFile();
+    auto tempString = createTempFile();
     fwrite(plaintextString.c_str(), plaintextString.length(), 1, tempfileHandle);
     fclose(tempfileHandle);
     tempfileHandleClosed = true;
+
+    return tempString;
 }
 
 std::string LogCryptor::createTempFile()

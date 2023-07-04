@@ -245,11 +245,39 @@ static void launchSession(Session& session)
         {
             menu.highlightLastEntryInTheFrame();
         }
+        else if (c == '+')
+        {
+            // Creating new log
+            std::string textEditor { "vim" };
+            LogCryptor lc { session.getSessionPassword() };
+            Log log { session.getSessionPath() };
+            lc.setLog(log);
+
+            // Create new temporary file
+            std::string tempentryPathString = lc.createTempFile();
+            // Allow editing
+            launchEditor(textEditor, tempentryPathString);
+
+            // Encrypt
+            lc.encrypt();
+        }
         else if (c == '\n')
         {
             std::string textEditor { "vim" };
-            std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
-            launchEditor(textEditor, filename);
+
+            // Get existing log
+            LogCryptor lc { session.getSessionPassword() };
+            lc.setLog(session.getLogs()[menu.getEntryIndex()]);
+            //std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
+            
+            // Decrypting
+            auto tempentryPathString = lc.decrypt();
+
+            // Edit
+            launchEditor(textEditor, tempentryPathString);
+
+            // Encrypt
+            lc.encrypt();
         }
         else if (c == KEY_F(5))
         {
