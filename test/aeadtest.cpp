@@ -1,10 +1,20 @@
 #include "../src/cryptor.h"
+#include <iostream>
 
 int main()
 {
-    LogCryptor logcryptor { std::string("test.txt") };
+    LogCryptor logcryptor { std::string("password") };
+    logcryptor.setLog(Log(std::string("."), (time_t) 1));
 
-    logcryptor.generateIV(10);
+    logcryptor.createTempFile();
+    //logcryptor.generateIV();
+
+    logcryptor.encrypt();
+    //logcryptor.cleanupTempFile();
+
+    logcryptor.decrypt();
+
+    logcryptor.cleanupTempFile();
 
     return 0;
 }

@@ -5,17 +5,42 @@
 #include <string>
 #include <filesystem>
 #include <openssl/evp.h>
+#include "session.h"
+
+#define CRYPTOR_IV_LEN 12
+#define CRYPTOR_TAG_LEN 16
+#define CRYPTOR_SALT_LEN 32
 
 class LogCryptor
 {
     public:
-        LogCryptor(std::filesystem::path path);
-        LogCryptor(std::string path);
+        LogCryptor(std::string pass);
 
-        std::string generateIV(unsigned int byteLength);
+        // Generate salt (Reuses the salt generator from Hasher)
+        void generateSalt(unsigned int saltByteLen=CRYPTOR_SALT_LEN);
+
+        // Set Log
+        void setLog(Log alog);
+
+        std::string generateIV(unsigned int byteLength=CRYPTOR_IV_LEN);
+        // Takes a temp file in tempdir, encrypts, then removes the temp file.
+        void encrypt();
+        // Takes an encrypted file, decrypts it to tempdir, returns the path string to tempdir
+        std::string decrypt(unsigned int saltnLen=CRYPTOR_SALT_LEN, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
+        
+        // Creates temp file at /tmp/crypticizer.XXXXXX then returns the path to it
+        std::string createTempFile();
+
+        // Cleans up the temp file.
+        void cleanupTempFile();
     private:
-        std::string logPathString {};
         std::string iv {};
+        std::string password {};
+        std::string salt {};
+        Log log;
+        std::FILE* tempfileHandle;
+        bool tempfileHandleClosed { true };
+        std::string currentTEMPFilePath {};
 
 };
 
@@ -56,5 +81,6 @@ class Hasher
 };
 
 Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen);
+std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::string salt);
 
 #endif
