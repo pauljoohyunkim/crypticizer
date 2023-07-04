@@ -188,7 +188,7 @@ static void loadSession(Session& session)
         {
             auto fp { filepath.path() };
             auto timestamp { (std::time_t) std::stoi(fp.stem()) };
-            session.addLog(fp, timestamp);
+            session.addLog(timestamp);
         }
     }
 }

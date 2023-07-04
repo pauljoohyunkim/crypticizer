@@ -32,15 +32,15 @@ std::vector<Log> Session::getLogs()
     return logs;
 }
 
-void Session::addLog(std::filesystem::path p)
+void Session::addLog()
 {
-    Log log { p };
+    Log log { sessionPath };
     logs.push_back(log);
     orderLogs();
 }
-void Session::addLog(std::filesystem::path p, std::time_t timer)
+void Session::addLog(std::time_t timer)
 {
-    Log log { p, timer };
+    Log log { sessionPath, timer };
     logs.push_back(log);
     orderLogs();
 }

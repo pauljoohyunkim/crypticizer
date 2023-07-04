@@ -22,8 +22,8 @@ class Session
         std::vector<Log> getLogs();
 
         // Add Log
-        void addLog(std::filesystem::path p);
-        void addLog(std::filesystem::path p, std::time_t timer);
+        void addLog();
+        void addLog(std::time_t timer);
 
         // Clear Log
         void clearLog();
