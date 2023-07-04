@@ -15,3 +15,63 @@ Otherwise you don't get the RAM-loading security benefit
 
 Another idea is that you would have complete control over
 who has access to which part of the diary.
+
+## Dependencies and Compilation
+You should have **ncurses** library and **openssl** (version later than 3.0) library installed.
+```
+mkdir build
+cd build
+cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
+make
+```
+Installation support will be added later.
+
+(CMake may be later replaced by other build system.)
+
+## Usage (TL;DR)
+Start project by
+```
+mkdir my_diary
+cd my_diary
+crypticizer
+```
+Arrow keys (or h,j,k,l) for navigation.
+
+'+' key for new entry.
+
+Enter key for editing an existing entry.
+
+F5 key for refreshing.
+
+'q' key for quitting.
+
+## Usage (Detailed)
+To start a project, simply create an empty directory and navigate to it,
+then run the program.
+```
+mkdir my_diary
+cd my_diary
+crypticizer
+```
+You will then be asked to set a (master) password of the project.
+**(If you forget it, I cannot really help you...)**
+
+On the first time running, it will create a directory called *.crypticizer*, where the password hash is stored.
+
+After setting the password,
+you will see a blank screen with an empty box, and a smaller box with hints.
+
+You can create a first entry by pressing '+' key,
+which will create a temporary file in /tmp directory (most likely) with vim (at the moment) only if you have it installed. (The support for choosing text editor of your choice will be added later.)
+
+When you exit vim ([How to exit vim](https://stackoverflow.com/questions/11828270/how-do-i-exit-vim)),
+the file will automatically encrypted with your password with AEAD, and saved as *(epoch time).crpt*
+
+The newly created file should now be on the list.
+Press enter to edit it, which will decrypted to a temporary file in the ramdisk again.
+
+You can navigate through the file via the arrow keys or h,j,k,l (vim binding).
+
+You can refresh the list (if an entry that you expected does not show up) by hitting F5 key.
+
+You can quit the program by pressing 'q'.
