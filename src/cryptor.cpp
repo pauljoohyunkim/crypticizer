@@ -125,7 +125,7 @@ void LogCryptor::encrypt(std::string infilename, std::string outfilename)
     delete [] ciphertext;
 }
 
-void LogCryptor::decrypt(std::string infilename, std::string outfilename, unsigned int ivLen, unsigned int tagLen)
+void LogCryptor::decrypt(std::string infilename, unsigned int ivLen, unsigned int tagLen)
 {
     // Input file info (Note: IV + Ciphertext + Tag (16 bytes)
     std::ifstream inFile { infilename, std::ifstream::binary };
@@ -202,12 +202,13 @@ void LogCryptor::decrypt(std::string infilename, std::string outfilename, unsign
     delete [] plaintext;
 
     // Output file
-    std::ofstream outFile { outfilename };
-    outFile << plaintextString;
-    outFile.close();
+    createTempFile();
+    fwrite(plaintextString.c_str(), plaintextString.length(), 1, tempfileHandle);
+    fclose(tempfileHandle);
+    tempfileHandleClosed = true;
 }
 
-std::FILE* LogCryptor::createTempFile()
+void LogCryptor::createTempFile()
 {
     auto tmpdirPath { std::filesystem::temp_directory_path() };
     auto tmpfilePath { tmpdirPath/std::string("crypticizer.XXXXXX") };
@@ -222,16 +223,23 @@ std::FILE* LogCryptor::createTempFile()
     currentTEMPFilePath = std::string(tmpfilename);
     delete [] tmpfilename;
 
-    return tempfileHandle;
+    tempfileHandleClosed = false;
 }
 
 void LogCryptor::cleanupTempFile()
 {
     // Close file
-    std::fclose(tempfileHandle);
+    if (!tempfileHandleClosed)
+    {
+        std::fclose(tempfileHandle);
+    }
+    tempfileHandleClosed = true;
+
+    // Empty the temp file path
+    currentTEMPFilePath.clear();
 
     // Clean up
-    unlink(currentTEMPFilePath.c_str());
+    auto ulret = unlink(currentTEMPFilePath.c_str());
 }
 
 

@@ -3,8 +3,11 @@
 
 int main()
 {
-    LogCryptor logcryptor { std::string("test.txt"), std::string("salt") };
-    auto filehandle = logcryptor.createTempFile();
+    std::string inputFileName { "test.txt.encrypted" };
+    std::string password { "password" };
+    std::string salt { "NaCl" };
+    LogCryptor logcryptor { password, salt };
+    logcryptor.decrypt(inputFileName);
 
     logcryptor.cleanupTempFile();
 

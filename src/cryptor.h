@@ -20,8 +20,8 @@ class LogCryptor
 
         std::string generateIV(unsigned int byteLength=CRYPTOR_IV_LEN);
         void encrypt(std::string infilename, std::string outfilename);
-        void decrypt(std::string infilename, std::string outfilename, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
-        std::FILE* createTempFile();
+        void decrypt(std::string infilename, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
+        void createTempFile();
         void cleanupTempFile();
     private:
         std::string iv {};
@@ -29,6 +29,7 @@ class LogCryptor
         std::string salt {};
         Log log;
         std::FILE* tempfileHandle;
+        bool tempfileHandleClosed { true };
         std::string currentTEMPFilePath {};
 
 };
