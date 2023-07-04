@@ -75,3 +75,15 @@ You can navigate through the file via the arrow keys or h,j,k,l (vim binding).
 You can refresh the list (if an entry that you expected does not show up) by hitting F5 key.
 
 You can quit the program by pressing 'q'.
+
+## Specifications
+Master password is hashed by SHA512 with a salt.
+
+Each time an entry is encrypted, it goes through the following process.
+```
+salt = generateSalt()
+IV = generateIV()
+expandedKey = SCRYPT(key, salt)
+encryptedText = salt + IV + AEAD(IV, AES_256_GCM, plainText, expandedKey)
+```
+where AEAD is concatenation of ciphertext and tag generated.
