@@ -48,6 +48,8 @@ class Log
         void refreshTime();
         void generateLogPathFromTimer();
 
+        std::string getLocalTime();
+
         std::filesystem::path logpath {};
     private:
         std::time_t timer;

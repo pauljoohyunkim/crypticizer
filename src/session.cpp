@@ -90,3 +90,11 @@ void Log::generateLogPathFromTimer()
     ss << timer << ".crpt";
     logpath = std::filesystem::path(ss.str());
 }
+std::string Log::getLocalTime()
+{
+    std::stringstream ss;
+    auto timeinfo { localtime(&timer) };
+    ss << asctime(timeinfo);
+
+    return ss.str();
+}

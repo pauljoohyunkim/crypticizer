@@ -206,7 +206,7 @@ static void launchSession(Session& session)
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
-    mvwprintw(infoWin, 1, 1, "Info: Arrow keys (or h,j,k,l) for navigation. Enter for editing a file. + for new file");
+    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file");
     wrefresh(infoWin);
 
 
