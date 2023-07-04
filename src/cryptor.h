@@ -9,11 +9,15 @@
 
 #define CRYPTOR_IV_LEN 12
 #define CRYPTOR_TAG_LEN 16
+#define CRYPTOR_SALT_LEN 32
 
 class LogCryptor
 {
     public:
-        LogCryptor(std::string pass, std::string asalt);
+        LogCryptor(std::string pass);
+
+        // Generate salt (Reuses the salt generator from Hasher)
+        void generateSalt(unsigned int saltByteLen=CRYPTOR_SALT_LEN);
 
         // Set Log
         void setLog(Log alog);
@@ -22,7 +26,7 @@ class LogCryptor
         // Takes a temp file in tempdir, encrypts, then removes the temp file.
         void encrypt();
         // Takes an encrypted file, decrypts it to tempdir
-        void decrypt(unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
+        void decrypt(unsigned int saltnLen=CRYPTOR_SALT_LEN, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
         
         // Creates temp file at /tmp/crypticizer.XXXXXX then returns the path to it
         std::string createTempFile();
