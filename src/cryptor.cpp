@@ -62,10 +62,14 @@ void LogCryptor::encrypt()
     auto plaintext_len = filelength;
     // Read plaintext
     inFile.read(plaintext, plaintext_len);
+    // Generate IV if not already generated
+    if (iv.empty())
+    {
+        generateIV();
+    }
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
     auto ciphertext = new unsigned char [plaintext_len];
-    //unsigned char ciphertext[32] = { 0 };
     
     EVP_CIPHER_CTX* ctx;
     int len;

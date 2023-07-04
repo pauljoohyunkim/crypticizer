@@ -7,7 +7,7 @@ int main()
     logcryptor.setLog(Log(std::string("."), (time_t) 1));
 
     logcryptor.createTempFile();
-    logcryptor.generateIV();
+    //logcryptor.generateIV();
 
     logcryptor.encrypt();
     //logcryptor.cleanupTempFile();
