@@ -221,7 +221,8 @@ void menuUpdateFromSession(Session& session, Menu& menu)
     // Fill the menu
     for (auto log : session.getLogs())
     {
-        menuEntries.push_back(log.logpath.string());
+        menuEntries.push_back(log.getLocalTime());
+        //menuEntries.push_back(log.logpath.string());
     }
     menu.updateEntry(menuEntries);
 }

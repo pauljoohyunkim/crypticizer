@@ -206,7 +206,7 @@ static void launchSession(Session& session)
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
-    mvwprintw(infoWin, 1, 1, "Info: Arrow keys (or h,j,k,l) for navigation. Enter for editing a file. + for new file");
+    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file");
     wrefresh(infoWin);
 
 
@@ -271,22 +271,27 @@ static void launchSession(Session& session)
         }
         else if (c == '\n')
         {
-            std::string textEditor { "vim" };
+            // If there is no log, then just refresh,
+            // otherwise, edit the highlighted
+            if (session.getLogs().size() > 0)
+            {
+                std::string textEditor { "vim" };
 
-            // Get existing log
-            LogCryptor lc { session.getSessionPassword() };
-            lc.setLog(session.getLogs()[menu.getEntryIndex()]);
-            //std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
-            
-            // Decrypting
-            auto tempentryPathString = lc.decrypt();
+                // Get existing log
+                LogCryptor lc { session.getSessionPassword() };
+                lc.setLog(session.getLogs()[menu.getEntryIndex()]);
+                //std::string filename { session.getLogs()[menu.getEntryIndex()].logpath.string() };
 
-            // Edit
-            launchEditor(textEditor, tempentryPathString);
+                // Decrypting
+                auto tempentryPathString = lc.decrypt();
 
-            // Encrypt
-            lc.encrypt();
+                // Edit
+                launchEditor(textEditor, tempentryPathString);
 
+                // Encrypt
+                lc.encrypt();
+
+            }
             // Refresh
             loadSession(session);
             menuUpdateFromSession(session, menu);
