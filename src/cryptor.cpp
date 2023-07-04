@@ -235,11 +235,12 @@ void LogCryptor::cleanupTempFile()
     }
     tempfileHandleClosed = true;
 
-    // Empty the temp file path
-    currentTEMPFilePath.clear();
 
     // Clean up
-    auto ulret = unlink(currentTEMPFilePath.c_str());
+    unlink(currentTEMPFilePath.c_str());
+
+    // Empty the temp file path
+    currentTEMPFilePath.clear();
 }
 
 
