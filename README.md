@@ -18,13 +18,29 @@ who has access to which part of the diary.
 
 ## Dependencies and Compilation
 You should have **ncurses** library and **openssl** (version later than 3.0) library installed.
+### Meson (Preferred)
+For release build:
+```
+meson setup --buildtype release build
+cd build
+ninja
+ninja install
+```
+For development:
+```
+meson setup --buildtype debug build     # Or just meson setup build
+cd build
+ninja
+ninja install
+```
+### CMake (Legacy)
 ```
 mkdir build
 cd build
-cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release
+cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release     # For development, use Debug instead of release
 make
 ```
-Installation support will be added later.
+Installation support for cmake will be added later.
 
 (CMake may be later replaced by other build system.)
 
