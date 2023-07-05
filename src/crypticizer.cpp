@@ -155,7 +155,21 @@ static void detectSession(Session& session, fs::path rootdir)
         std::string editorfilecontentString { editorfilecontent, editorfilecontent + editorfilecontent_len };
         delete [] editorfilecontent;
 
-        session.setSessionTextEditor(editorfilecontentString);
+        // Regex match to get one word.
+        std::smatch match;
+        std::regex stripFilter { "\\S+" };
+        
+        if (std::regex_search(editorfilecontentString, match, stripFilter))
+        {
+            session.setSessionTextEditor(match.str(0));
+        }
+        else
+        {
+            std::cout << "Warning: Could not recognize editor from " << editorfilepath
+                << " so defaulting to using " << session.getSessionTextEditor() << "." << std::endl;
+            std::cout << "Press Enter to continue." << std::endl;
+            std::cin.ignore();
+        }
     }
     else
     {
