@@ -69,7 +69,7 @@ static bool logCompare(Log log1, Log log2)
 {
     auto fn1 { log1.logpath.stem().string() };
     auto fn2 { log2.logpath.stem().string() };
-    return std::stoi(fn1) < std::stoi(fn2);
+    return std::stoi(fn1) > std::stoi(fn2);
 }
 
 Log::Log()
