@@ -12,6 +12,7 @@
 #include "session.h"
 #include "errorcodes.h"
 #include "menu.h"
+#include "filestrhelper.h"
 
 namespace fs = std::filesystem;
 
@@ -143,19 +144,7 @@ static void detectSession(Session& session, fs::path rootdir)
     // Check if the editor file exists.
     if (fs::exists(editorfilepath))
     {
-        std::ifstream editorfileStream { editorfilepath };
-        editorfileStream.seekg(0, editorfileStream.end);
-        unsigned int editorfilecontent_len = editorfileStream.tellg();
-        editorfileStream.seekg(0, editorfileStream.beg);
-        auto editorfilecontent = new char [editorfilecontent_len];
-
-        // Read
-        editorfileStream.read(editorfilecontent, editorfilecontent_len);
-        editorfileStream.close();
-
-        // Turn it into string
-        std::string editorfilecontentString { editorfilecontent, editorfilecontent + editorfilecontent_len };
-        delete [] editorfilecontent;
+        std::string editorfilecontentString { readFileToString(editorfilepath) };
 
         // Regex match to get one word.
         std::smatch match;
