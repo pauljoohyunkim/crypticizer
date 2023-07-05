@@ -270,8 +270,16 @@ static void launchSession(Session& session)
     int x, y;
     getmaxyx(stdscr, y, x);
     // Entry Window
-    auto menuIndex { wm.createWindow(y - 3, x, 0, 0) };
+    auto menuIndex { wm.createWindow(y - 3, x / 2, 0, 0) };
     Menu menu { wm[menuIndex] };
+
+    // Preview Window
+    auto previewIndex { wm.createWindow(y - 3, x / 2, 0, x / 2) };
+    auto previewWin { wm[previewIndex] };
+    mvwprintw(previewWin, 1, 1, "PREVIEW WILL BE SHOWN HERE!");
+    wrefresh(previewWin);
+
+
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
