@@ -174,8 +174,18 @@ static void detectSession(Session& session, fs::path rootdir)
         {
             session.setSessionTextEditor(editorString);
         }
+
+        // Write default texteditor setting
+        std::ofstream editorfileStream { editorfilepath };
+        editorfileStream << session.getSessionTextEditor();
+        editorfileStream.close();
+
         std::cout << "Session editor is set to " << session.getSessionTextEditor()
-            << ". If you wish to change this, edit the " << editorfilepath << "." << std::endl;
+            << ". If you wish to change this, edit the " << editorfilepath << "." << std::endl
+            << "Press Enter key to continue.";
+
+        // Press enter key to continue
+        std::cin.ignore();
     }
 }
 
