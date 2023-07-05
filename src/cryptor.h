@@ -25,8 +25,9 @@ class LogCryptor
         std::string generateIV(unsigned int byteLength=CRYPTOR_IV_LEN);
         // Takes a temp file in tempdir, encrypts, then removes the temp file.
         void encrypt();
-        // Takes an encrypted file, decrypts it to tempdir, returns the path string to tempdir
-        std::string decrypt(unsigned int saltnLen=CRYPTOR_SALT_LEN, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
+        // If preview=false, it takes an encrypted file, decrypts it to tempdir, returns the path string to tempdir (if preview=false)
+        // If preview=true, then it decrypts the file in memory, and it instead returns the decrypted text.
+        std::string decrypt(bool preview=false, unsigned int saltnLen=CRYPTOR_SALT_LEN, unsigned int ivLen=CRYPTOR_IV_LEN, unsigned int tagLen=CRYPTOR_TAG_LEN);
         
         // Creates temp file at /tmp/crypticizer.XXXXXX then returns the path to it
         std::string createTempFile();
