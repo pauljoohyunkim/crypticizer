@@ -3,6 +3,7 @@
 
 #define CRYPTICIZER ".crypticizer"
 #define HASHFILE "shadow"
+#define EDITORFILE "editor"
 #define HASHFUNCTION HFT_SHA512
 #define HASH_SALT_N_BYTES 16
 
