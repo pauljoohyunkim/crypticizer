@@ -40,9 +40,7 @@ cd build
 cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release     # For development, use Debug instead of release
 make
 ```
-Installation support for cmake will be added later.
-
-(CMake may be later replaced by other build system.)
+(Installation support for cmake will be added later?)
 
 ## Usage (TL;DR)
 Start project by
