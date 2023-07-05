@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 #include <unistd.h>
 #include <termios.h>
@@ -70,47 +71,13 @@ static void detectSession(Session& session, fs::path rootdir)
     }
     auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
     auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
+    auto editorfilepath { crypticizierDirectory/fs::path(EDITORFILE) };
 
     // Check for .crypticizer directory in the CWD
     if (fs::exists(crypticizierDirectory))
     {
         session.setSessionPath(rootdir);
-        // Check if the hash file exists.
-        if (fs::exists(hashfilepath))
-        {
-            // If it does, read it, and ask for password.
-            auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
-            auto password = getPassword(false);
-            Hasher hasher { HASHFUNCTION };
-            auto salt = referenceHasher.getSalt();
-            // Set salt and digest
-            hasher.setSalt(salt);
-            hasher.digestWithSalt(password);
-            if (referenceHasher.hexsaltdigest() != hasher.hexsaltdigest())
-            {
-                //Password not matched!
-                std::cerr << "Error: Wrong password!" << std::endl;
-                exit(WRONG_PASSWORD);
-            }
-            else
-            {
-                session.setSessionPassword(password);
-            }
-        }
-        else
-        {
-            //Otherwise, create hashfile
 
-            newProjectMessage();
-            session.setSessionPath(rootdir);
-            auto password = getPassword(true);
-            session.setSessionPassword(password);
-            // Create hash file
-            Hasher hasher { HASHFUNCTION };
-            hasher.generateSalt(HASH_SALT_N_BYTES);
-            hasher.digestWithSalt(password);
-            hasher.dumpHexdigestToFile(hashfilepath);
-        }
 
     }
     else
@@ -134,6 +101,81 @@ static void detectSession(Session& session, fs::path rootdir)
         hasher.generateSalt(HASH_SALT_N_BYTES);
         hasher.digestWithSalt(password);
         hasher.dumpHexdigestToFile(hashfilepath);
+    }
+    // Check if the hash file exists.
+    if (fs::exists(hashfilepath))
+    {
+        // If it does, read it, and ask for password.
+        auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
+        auto password = getPassword(false);
+        Hasher hasher { HASHFUNCTION };
+        auto salt = referenceHasher.getSalt();
+        // Set salt and digest
+        hasher.setSalt(salt);
+        hasher.digestWithSalt(password);
+        if (referenceHasher.hexsaltdigest() != hasher.hexsaltdigest())
+        {
+            //Password not matched!
+            std::cerr << "Error: Wrong password!" << std::endl;
+            exit(WRONG_PASSWORD);
+        }
+        else
+        {
+            session.setSessionPassword(password);
+        }
+    }
+    else
+    {
+        //Otherwise, create hashfile
+        newProjectMessage();
+        session.setSessionPath(rootdir);
+        auto password = getPassword(true);
+        session.setSessionPassword(password);
+        // Create hash file
+        Hasher hasher { HASHFUNCTION };
+        hasher.generateSalt(HASH_SALT_N_BYTES);
+        hasher.digestWithSalt(password);
+        hasher.dumpHexdigestToFile(hashfilepath);
+    }
+
+    // Check if the editor file exists.
+    if (fs::exists(editorfilepath))
+    {
+        std::ifstream editorfileStream { editorfilepath };
+        editorfileStream.seekg(0, editorfileStream.end);
+        unsigned int editorfilecontent_len = editorfileStream.tellg();
+        editorfileStream.seekg(0, editorfileStream.beg);
+        auto editorfilecontent = new char [editorfilecontent_len];
+
+        // Read
+        editorfileStream.read(editorfilecontent, editorfilecontent_len);
+        editorfileStream.close();
+
+        // Turn it into string
+        std::string editorfilecontentString { editorfilecontent, editorfilecontent + editorfilecontent_len };
+        delete [] editorfilecontent;
+
+        session.setSessionTextEditor(editorfilecontentString);
+    }
+    else
+    {
+        std::string editorString {};
+        // Ask if default text editor should be used.
+        std::cout << "Currently the default text editor is " << session.getSessionTextEditor() << ". ";
+        std::cout << "If you want to use another editor, enter it here, otherwise leave it blank: ";
+        std::getline(std::cin, editorString);
+        if (editorString.size())
+        {
+            // Attempt to get the first word
+            editorString = editorString.substr(0, editorString.find(" "));
+        }
+        // Check again, as editorString originally could've just been whitespace.
+        if (editorString.size())
+        {
+            session.setSessionTextEditor(editorString);
+        }
+        std::cout << "Session editor is set to " << session.getSessionTextEditor()
+            << ". If you wish to change this, edit the " << editorfilepath << "." << std::endl;
     }
 }
 
@@ -164,6 +206,7 @@ static std::string getPassword(bool verify)
         }
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+    std::cout << std::endl;
     return pass;
 }
 
