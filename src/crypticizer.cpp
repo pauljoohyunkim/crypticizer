@@ -252,7 +252,7 @@ static void launchSession(Session& session)
         else if (c == '+')
         {
             // Creating new log
-            std::string textEditor { "vim" };
+            std::string textEditor { session.getSessionTextEditor() };
             LogCryptor lc { session.getSessionPassword() };
             Log log { session.getSessionPath() };
             lc.setLog(log);
@@ -275,7 +275,7 @@ static void launchSession(Session& session)
             // otherwise, edit the highlighted
             if (session.getLogs().size() > 0)
             {
-                std::string textEditor { "vim" };
+                std::string textEditor { session.getSessionTextEditor() };
 
                 // Get existing log
                 LogCryptor lc { session.getSessionPassword() };

@@ -15,10 +15,12 @@ class Session
         // Setter
         void setSessionPath(std::filesystem::path path);
         void setSessionPassword(std::string pass);
+        void setSessionTextEditor(std::string texteditor);
 
         // Getter
         std::filesystem::path getSessionPath();
         std::string getSessionPassword();
+        std::string getSessionTextEditor();
         std::vector<Log> getLogs();
 
         // Add Log
@@ -35,6 +37,7 @@ class Session
         std::filesystem::path sessionPath {};
         std::vector<Log> logs {};
         std::string password {};
+        std::string textEditorName { "vim" };
 
 };
 
