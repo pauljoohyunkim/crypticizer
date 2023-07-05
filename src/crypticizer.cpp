@@ -94,6 +94,7 @@ static void detectSession(Session& session, fs::path rootdir)
         }
         newProjectMessage();
         session.setSessionPath(rootdir);
+        std::cout << "Setting the password..." << std::endl;
         auto password = getPassword(true);
         session.setSessionPassword(password);
         // Create hash file
@@ -107,6 +108,7 @@ static void detectSession(Session& session, fs::path rootdir)
     {
         // If it does, read it, and ask for password.
         auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
+        std::cout << "Logging in..." << std::endl;
         auto password = getPassword(false);
         Hasher hasher { HASHFUNCTION };
         auto salt = referenceHasher.getSalt();
