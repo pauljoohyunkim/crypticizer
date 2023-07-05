@@ -31,7 +31,6 @@ For development:
 meson setup --buildtype debug build     # Or just meson setup build
 cd build
 ninja
-ninja install
 ```
 ### CMake (Legacy)
 ```
@@ -73,7 +72,10 @@ You will then be asked to set a (master) password of the project.
 On the first time running, it will create a directory called *.crypticizer*, where the password hash is stored.
 
 After setting the password,
-you will see a blank screen with an empty box, and a smaller box with hints.
+you will be asked to set a default text editor for the project.
+Leaving this empty will set it to using vim (because you are a chad).
+
+Then, you will see a blank screen with an empty box, and a smaller box with hints.
 
 You can create a first entry by pressing '+' key,
 which will create a temporary file in /tmp directory (most likely) with vim (at the moment) only if you have it installed. (The support for choosing text editor of your choice will be added later.)
