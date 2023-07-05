@@ -17,6 +17,11 @@ void Session::setSessionPassword(std::string pass)
     password = pass;
 }
 
+void Session::setSessionTextEditor(std::string texteditor)
+{
+    textEditorName = texteditor;
+}
+
 std::filesystem::path Session::getSessionPath()
 {
     return sessionPath;
@@ -25,6 +30,11 @@ std::filesystem::path Session::getSessionPath()
 std::string Session::getSessionPassword()
 {
     return password;
+}
+
+std::string Session::getSessionTextEditor()
+{
+    return textEditorName;
 }
 
 std::vector<Log> Session::getLogs()
