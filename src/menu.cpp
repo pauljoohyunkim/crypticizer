@@ -226,3 +226,19 @@ void menuUpdateFromSession(Session& session, Menu& menu)
     }
     menu.updateEntry(menuEntries);
 }
+
+void writeTextInWindow(WINDOW* win, std::string text)
+{
+    // Get the box size
+    int y, x;
+    getmaxyx(win, y, x);
+
+    // Clear window
+    wclear(win);
+
+    // Write
+    mvwprintw(win, 1, 1, "%s", text.c_str());
+
+    // Refresh
+    wrefresh(win);
+}

@@ -22,6 +22,7 @@ static void newProjectMessage();
 static void loadSession(Session& session);
 static void launchSession(Session& session);
 static void launchEditor(std::string textEditorProgram, std::string filename);
+static void updatePreview(WINDOW* previewinterior, Menu& menu, Session& session);
 
 Session crypticizerSession {};
 
@@ -262,12 +263,13 @@ static void launchSession(Session& session)
     auto menuIndex { wm.createWindow(y - 3, x / 2, 0, 0) };
     Menu menu { wm[menuIndex] };
 
-    // Preview Window
-    auto previewIndex { wm.createWindow(y - 3, x / 2, 0, x / 2) };
-    auto previewWin { wm[previewIndex] };
-    mvwprintw(previewWin, 1, 1, "PREVIEW WILL BE SHOWN HERE!");
-    wrefresh(previewWin);
-
+    // Preview Window (Box and Interior)
+    auto previewBorderIndex { wm.createWindow(y - 3, x / 2, 0, x / 2) };
+    auto previewBorder { wm[previewBorderIndex] };
+    auto previewWinIndex { wm.createWindow(y - 5, x / 2 - 2, 1, x / 2 + 1, false) };
+    auto previewWindow { wm[previewWinIndex] };
+    wrefresh(previewBorder);
+    wrefresh(previewWindow);
 
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
@@ -279,6 +281,7 @@ static void launchSession(Session& session)
     // Get menu from session
     menuUpdateFromSession(session, menu);
     menu.draw();
+    updatePreview(previewWindow, menu, session);
 
     // Wiring of the keys!
     auto c = getch();
@@ -357,6 +360,7 @@ static void launchSession(Session& session)
                 // Encrypt
                 lc.encrypt();
 
+                menu.highlightFirstEntryInTheFrame();
             }
             // Refresh
             loadSession(session);
@@ -368,6 +372,7 @@ static void launchSession(Session& session)
             loadSession(session);
             menuUpdateFromSession(session, menu);
         }
+        updatePreview(previewWindow, menu, session);
         menu.draw();
         c = getch();
     }
@@ -392,5 +397,21 @@ static void launchEditor(std::string textEditorProgram, std::string filename)
         wait(0);
         reset_prog_mode();
         refresh();
+    }
+}
+
+static void updatePreview(WINDOW* previewinterior, Menu& menu, Session& session)
+{
+    // Only do something if there is an entry highlighted.
+    if (session.getLogs().size() > 0)
+    {
+        // Get highlited log
+        LogCryptor lc { session.getSessionPassword() };
+        lc.setLog(session.getLogs()[menu.getEntryIndex()]);
+        writeTextInWindow(previewinterior, lc.decrypt(true));
+    }
+    else
+    {
+        writeTextInWindow(previewinterior, std::string("PREVIEW WILL BE SHOWN HERE!"));
     }
 }

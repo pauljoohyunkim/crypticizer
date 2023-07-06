@@ -1,6 +1,9 @@
 CXX=g++
 CXXFLAGS=-g -Wall
 
+boxwritetest: boxwritetest.cpp ../src/session.cpp ../src/menu.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lncurses
+
 tmpfiletest: tmpfiletest.cpp ../src/cryptor.cpp ../src/session.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ `pkg-config --libs openssl`
 
