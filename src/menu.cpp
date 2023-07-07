@@ -229,15 +229,11 @@ void menuUpdateFromSession(Session& session, Menu& menu)
 
 void writeTextInWindow(WINDOW* win, std::string text)
 {
-    // Get the box size
-    int y, x;
-    getmaxyx(win, y, x);
-
     // Clear window
     wclear(win);
 
     // Write
-    mvwprintw(win, 1, 1, "%s", text.c_str());
+    wprintw(win, "%s", text.c_str());
 
     // Refresh
     wrefresh(win);
