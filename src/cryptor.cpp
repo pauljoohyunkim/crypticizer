@@ -14,6 +14,7 @@
 #include <openssl/rand.h>
 #include <openssl/kdf.h>
 #include <openssl/evp.h>
+#include <ncurses.h>
 #include "cryptor.h"
 #include "session.h"
 #include "errorcodes.h"
@@ -219,7 +220,12 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
         plaintext_len += len;
     } else {
         /* Verify failed */
+        def_prog_mode();
+        endwin();
         std::cerr << "Verification failed, not trustworthy" << std::endl;
+        std::cin.ignore();
+        reset_prog_mode();
+        refresh();
     }
     std::string plaintextString { plaintext, plaintext + plaintext_len };
     delete [] plaintext;
