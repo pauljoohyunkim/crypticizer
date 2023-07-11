@@ -149,7 +149,7 @@ void Menu::draw()
     {
         auto rownum = index - entryIndexMin + 1;
         //if ((int) rownum - 1 == (int) entryIndex)
-        if (index == entryIndex)
+        if (index == (unsigned int) entryIndex)
         {
             wattron(win, A_STANDOUT);
         }
@@ -176,7 +176,7 @@ void Menu::highlightNextEntry()
     getmaxyx(win, y, x);
     auto num_of_entries_in_menu = y - 2;
     // Only if there is the next element.
-    if (entryIndex < entries.size()-1)
+    if (entryIndex < (int)entries.size()-1)
     {
         entryIndex++;
         entryIndexMin = (entryIndex / num_of_entries_in_menu) * num_of_entries_in_menu;
