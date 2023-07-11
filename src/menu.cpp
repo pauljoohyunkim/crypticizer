@@ -125,7 +125,14 @@ void Menu::updateEntry(std::vector<std::string> aentries)
     entries = aentries;
     entryIndexMin = 0;
     getmaxyx(win, y, x);
-    entryIndexMax = std::min<unsigned int>(entries.size() - 1, y - 3);
+    if (entries.size() == 0)
+    {
+        entryIndexMax = 0;
+    }
+    else
+    {
+        entryIndexMax = std::min<unsigned int>(entries.size() - 1, y - 3);
+    }
 }
 
 void Menu::draw()
