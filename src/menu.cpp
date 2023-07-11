@@ -125,7 +125,14 @@ void Menu::updateEntry(std::vector<std::string> aentries)
     entries = aentries;
     entryIndexMin = 0;
     getmaxyx(win, y, x);
-    entryIndexMax = std::min<unsigned int>(entries.size() - 1, y - 3);
+    if (entries.size() == 0)
+    {
+        entryIndexMax = 0;
+    }
+    else
+    {
+        entryIndexMax = std::min<unsigned int>(entries.size() - 1, y - 3);
+    }
 }
 
 void Menu::draw()
@@ -149,7 +156,7 @@ void Menu::draw()
     {
         auto rownum = index - entryIndexMin + 1;
         //if ((int) rownum - 1 == (int) entryIndex)
-        if (index == entryIndex)
+        if (index == (unsigned int) entryIndex)
         {
             wattron(win, A_STANDOUT);
         }
@@ -176,7 +183,7 @@ void Menu::highlightNextEntry()
     getmaxyx(win, y, x);
     auto num_of_entries_in_menu = y - 2;
     // Only if there is the next element.
-    if (entryIndex < entries.size()-1)
+    if (entryIndex < (int)entries.size()-1)
     {
         entryIndex++;
         entryIndexMin = (entryIndex / num_of_entries_in_menu) * num_of_entries_in_menu;
@@ -225,4 +232,16 @@ void menuUpdateFromSession(Session& session, Menu& menu)
         //menuEntries.push_back(log.logpath.string());
     }
     menu.updateEntry(menuEntries);
+}
+
+void writeTextInWindow(WINDOW* win, std::string text)
+{
+    // Clear window
+    wclear(win);
+
+    // Write
+    wprintw(win, "%s", text.c_str());
+
+    // Refresh
+    wrefresh(win);
 }

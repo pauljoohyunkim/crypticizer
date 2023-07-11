@@ -12,6 +12,7 @@
 #include "session.h"
 #include "errorcodes.h"
 #include "menu.h"
+#include "filestrhelper.h"
 
 namespace fs = std::filesystem;
 
@@ -21,6 +22,7 @@ static void newProjectMessage();
 static void loadSession(Session& session);
 static void launchSession(Session& session);
 static void launchEditor(std::string textEditorProgram, std::string filename);
+static void updatePreview(WINDOW* previewinterior, Menu& menu, Session& session);
 
 Session crypticizerSession {};
 
@@ -143,19 +145,7 @@ static void detectSession(Session& session, fs::path rootdir)
     // Check if the editor file exists.
     if (fs::exists(editorfilepath))
     {
-        std::ifstream editorfileStream { editorfilepath };
-        editorfileStream.seekg(0, editorfileStream.end);
-        unsigned int editorfilecontent_len = editorfileStream.tellg();
-        editorfileStream.seekg(0, editorfileStream.beg);
-        auto editorfilecontent = new char [editorfilecontent_len];
-
-        // Read
-        editorfileStream.read(editorfilecontent, editorfilecontent_len);
-        editorfileStream.close();
-
-        // Turn it into string
-        std::string editorfilecontentString { editorfilecontent, editorfilecontent + editorfilecontent_len };
-        delete [] editorfilecontent;
+        std::string editorfilecontentString { readFileToString(editorfilepath) };
 
         // Regex match to get one word.
         std::smatch match;
@@ -270,8 +260,17 @@ static void launchSession(Session& session)
     int x, y;
     getmaxyx(stdscr, y, x);
     // Entry Window
-    auto menuIndex { wm.createWindow(y - 3, x, 0, 0) };
+    auto menuIndex { wm.createWindow(y - 3, x / 2, 0, 0) };
     Menu menu { wm[menuIndex] };
+
+    // Preview Window (Box and Interior)
+    auto previewBorderIndex { wm.createWindow(y - 3, x / 2, 0, x / 2) };
+    auto previewBorder { wm[previewBorderIndex] };
+    auto previewWinIndex { wm.createWindow(y - 5, x / 2 - 2, 1, x / 2 + 1, false) };
+    auto previewWindow { wm[previewWinIndex] };
+    wrefresh(previewBorder);
+    wrefresh(previewWindow);
+
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
@@ -282,6 +281,7 @@ static void launchSession(Session& session)
     // Get menu from session
     menuUpdateFromSession(session, menu);
     menu.draw();
+    updatePreview(previewWindow, menu, session);
 
     // Wiring of the keys!
     auto c = getch();
@@ -360,6 +360,7 @@ static void launchSession(Session& session)
                 // Encrypt
                 lc.encrypt();
 
+                menu.highlightFirstEntryInTheFrame();
             }
             // Refresh
             loadSession(session);
@@ -371,6 +372,7 @@ static void launchSession(Session& session)
             loadSession(session);
             menuUpdateFromSession(session, menu);
         }
+        updatePreview(previewWindow, menu, session);
         menu.draw();
         c = getch();
     }
@@ -395,5 +397,21 @@ static void launchEditor(std::string textEditorProgram, std::string filename)
         wait(0);
         reset_prog_mode();
         refresh();
+    }
+}
+
+static void updatePreview(WINDOW* previewinterior, Menu& menu, Session& session)
+{
+    // Only do something if there is an entry highlighted.
+    if (session.getLogs().size() > 0)
+    {
+        // Get highlited log
+        LogCryptor lc { session.getSessionPassword() };
+        lc.setLog(session.getLogs()[menu.getEntryIndex()]);
+        writeTextInWindow(previewinterior, lc.decrypt(true));
+    }
+    else
+    {
+        writeTextInWindow(previewinterior, std::string("PREVIEW WILL BE SHOWN HERE!"));
     }
 }

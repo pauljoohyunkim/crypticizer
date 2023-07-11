@@ -68,5 +68,6 @@ class Menu
 };
 
 void menuUpdateFromSession(Session& session, Menu& menu);
+void writeTextInWindow(WINDOW* win, std::string text);
 
 #endif
