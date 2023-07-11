@@ -8,6 +8,7 @@
 
 WindowManager::WindowManager()
 {
+    setlocale(LC_ALL, "");
     initscr();
     raw();
     noecho();
