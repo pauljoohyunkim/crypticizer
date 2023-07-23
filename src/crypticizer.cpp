@@ -71,25 +71,23 @@ static void detectSession(Session& session, fs::path rootdir)
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
     }
-    auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
-    auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
-    auto editorfilepath { crypticizierDirectory/fs::path(EDITORFILE) };
+    auto crypticizerDirectory { rootdir/fs::path(CRYPTICIZER) };
+    auto hashfilepath { crypticizerDirectory/fs::path(HASHFILE) };
+    auto editorfilepath { crypticizerDirectory/fs::path(EDITORFILE) };
 
     // Check for .crypticizer directory in the CWD
-    if (fs::exists(crypticizierDirectory))
+    if (fs::exists(crypticizerDirectory))
     {
         session.setSessionPath(rootdir);
-
-
     }
     else
     {
         // If not, create the .crypticizer directory in CWD
         // If this fails, halt the program.
-        if (!fs::create_directory(crypticizierDirectory))
+        if (!fs::create_directory(crypticizerDirectory))
         {
             std::cerr << "Error: Could not create "
-                      << crypticizierDirectory
+                      << crypticizerDirectory
                       << " directory. Make sure you have permission."
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
@@ -375,8 +373,8 @@ static void launchSession(Session& session)
         else if (c == 'c')
         {
             auto rootdir { session.getSessionPath() };
-            auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
-            auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
+            auto crypticizerDirectory { rootdir/fs::path(CRYPTICIZER) };
+            auto hashfilepath { crypticizerDirectory/fs::path(HASHFILE) };
             // Change password
             // Exit out of ncurses temporarily
             def_prog_mode();
