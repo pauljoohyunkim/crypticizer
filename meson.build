@@ -1,4 +1,4 @@
-project('crypticizer', 'cpp')
+project('crypticizer', 'cpp', default_options : ['cpp_std=c++17'])
 
 ssldep = dependency('openssl', version : '>=3.0.0')
 cursesdep = dependency('ncurses')

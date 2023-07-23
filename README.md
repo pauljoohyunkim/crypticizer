@@ -21,7 +21,14 @@ You should have **ncurses** library and **openssl** (version later than 3.0) lib
 ### Meson (Preferred)
 For release build:
 ```
+# For systemwide installation
 meson setup --buildtype release build
+cd build
+ninja
+sudo ninja install
+
+# For local installation (To ~/.local/bin)
+meson setup --buildtype release --prefix=~/.local build
 cd build
 ninja
 ninja install
@@ -56,6 +63,8 @@ Enter key for editing an existing entry.
 
 F5 key for refreshing.
 
+'c' key for changing password.
+
 'q' key for quitting.
 
 ## Usage (Detailed)
@@ -89,6 +98,8 @@ Press enter to edit it, which will decrypted to a temporary file in the ramdisk 
 You can navigate through the file via the arrow keys or h,j,k,l (vim binding).
 
 You can refresh the list (if an entry that you expected does not show up) by hitting F5 key.
+
+You can change password by pressing 'c'.
 
 You can quit the program by pressing 'q'.
 
