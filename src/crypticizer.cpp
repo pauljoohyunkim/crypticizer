@@ -78,7 +78,7 @@ static void detectSession(Session& session, fs::path rootdir)
     // Check for .crypticizer directory in the CWD
     if (fs::exists(crypticizerDirectory))
     {
-        session.setSessionPath(rootdir);
+        session.setSessionPath(rootdir, crypticizerDirectory, hashfilepath, editorfilepath);
     }
     else
     {
@@ -93,7 +93,7 @@ static void detectSession(Session& session, fs::path rootdir)
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
         newProjectMessage();
-        session.setSessionPath(rootdir);
+        session.setSessionPath(rootdir, crypticizerDirectory, hashfilepath, editorfilepath);
         std::cout << "Setting the password..." << std::endl;
         auto password = getPassword(true);
         session.setSessionPassword(password);
@@ -130,7 +130,7 @@ static void detectSession(Session& session, fs::path rootdir)
     {
         //Otherwise, create hashfile
         newProjectMessage();
-        session.setSessionPath(rootdir);
+        session.setSessionPath(rootdir, crypticizerDirectory, hashfilepath, editorfilepath);
         auto password = getPassword(true);
         session.setSessionPassword(password);
         // Create hash file
@@ -373,8 +373,8 @@ static void launchSession(Session& session)
         else if (c == 'c')
         {
             auto rootdir { session.getSessionPath() };
-            auto crypticizerDirectory { rootdir/fs::path(CRYPTICIZER) };
-            auto hashfilepath { crypticizerDirectory/fs::path(HASHFILE) };
+            auto crypticizerDirectory { session.getCrypticizerDirectory() };
+            auto hashfilepath { session.getHashfilepath() };
             // Change password
             // Exit out of ncurses temporarily
             def_prog_mode();

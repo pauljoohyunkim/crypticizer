@@ -14,11 +14,18 @@ class Session
     public:
         // Setter
         void setSessionPath(std::filesystem::path path);
+        void setSessionPath(std::filesystem::path sessionpath,
+                std::filesystem::path crypticizerpath,
+                std::filesystem::path hashfile,
+                std::filesystem::path editorfile);
         void setSessionPassword(std::string pass);
         void setSessionTextEditor(std::string texteditor);
 
         // Getter
         std::filesystem::path getSessionPath();
+        std::filesystem::path getCrypticizerDirectory();
+        std::filesystem::path getHashfilepath();
+        std::filesystem::path getEditorfilepath();
         std::string getSessionPassword();
         std::string getSessionTextEditor();
         std::vector<Log> getLogs();
@@ -35,6 +42,9 @@ class Session
         void orderLogs();
 
         std::filesystem::path sessionPath {};
+        std::filesystem::path crypticizerDirectory {};
+        std::filesystem::path hashfilepath {};
+        std::filesystem::path editorfilepath {};
         std::vector<Log> logs {};
         std::string password {};
         std::string textEditorName { "vim" };
