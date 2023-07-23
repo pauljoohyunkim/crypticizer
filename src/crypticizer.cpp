@@ -372,6 +372,63 @@ static void launchSession(Session& session)
             loadSession(session);
             menuUpdateFromSession(session, menu);
         }
+        else if (c == 'c')
+        {
+            auto rootdir { session.getSessionPath() };
+            auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
+            auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
+            // Change password
+            // Exit out of ncurses temporarily
+            def_prog_mode();
+            endwin();
+
+            // Ask for current password.
+            auto currentPass = getPassword();
+            Hasher hasher { HASHFUNCTION };
+            // Reading from hash file
+            auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
+            auto salt = referenceHasher.getSalt();
+            // Set salt and digest
+            hasher.setSalt(salt);
+            hasher.digestWithSalt(currentPass);
+
+            if (referenceHasher.hexsaltdigest() != hasher.hexsaltdigest())
+            {
+                //Password not matched!
+                std::cerr << "Error: Wrong password!" << std::endl;
+            }
+            else
+            {
+                // Ask for new password:
+                std::cout << "Setting new password!" << std::endl;
+                auto newPass = getPassword(true);
+                auto logs = session.getLogs();
+                LogCryptor lc_old { currentPass };
+                LogCryptor lc_new { newPass };
+                // For each of the logs, re-encrypt.
+                for (auto log : logs)
+                {
+                    lc_old.setLog(log);
+                    lc_new.setLog(log);
+
+                    // Decrypt
+                    auto tempPathString = lc_old.decrypt();
+
+                    // Encrypt
+                    lc_new.encrypt(tempPathString);
+                }
+                session.setSessionPassword(newPass);
+                Hasher hasher { HASHFUNCTION };
+                hasher.generateSalt(HASH_SALT_N_BYTES);
+                hasher.digestWithSalt(newPass);
+                hasher.dumpHexdigestToFile(hashfilepath);
+            }
+
+
+            // Restore
+            reset_prog_mode();
+            refresh();
+        }
         updatePreview(previewWindow, menu, session);
         menu.draw();
         c = getch();
