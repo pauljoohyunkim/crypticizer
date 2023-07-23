@@ -383,6 +383,7 @@ static void launchSession(Session& session)
             endwin();
 
             // Ask for current password.
+            std::cout << "Resetting the password..." << std::endl;
             auto currentPass = getPassword();
             Hasher hasher { HASHFUNCTION };
             // Reading from hash file
@@ -396,6 +397,7 @@ static void launchSession(Session& session)
             {
                 //Password not matched!
                 std::cerr << "Error: Wrong password!" << std::endl;
+                std::cin.ignore();
             }
             else
             {
