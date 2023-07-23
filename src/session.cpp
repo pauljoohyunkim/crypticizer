@@ -12,6 +12,17 @@ void Session::setSessionPath(std::filesystem::path path)
     sessionPath = path;
 }
 
+void Session::setSessionPath(std::filesystem::path sessionpath,
+        std::filesystem::path crypticizerpath,
+        std::filesystem::path hashfile,
+        std::filesystem::path editorfile)
+{
+    sessionPath = sessionpath;
+    crypticizerDirectory = crypticizerpath;
+    hashfilepath = hashfile;
+    editorfilepath = editorfile;
+}
+
 void Session::setSessionPassword(std::string pass)
 {
     password = pass;
@@ -25,6 +36,19 @@ void Session::setSessionTextEditor(std::string texteditor)
 std::filesystem::path Session::getSessionPath()
 {
     return sessionPath;
+}
+
+std::filesystem::path Session::getCrypticizerDirectory()
+{
+    return crypticizerDirectory;
+}
+std::filesystem::path Session::getHashfilepath()
+{
+    return hashfilepath;
+}
+std::filesystem::path Session::getEditorfilepath()
+{
+    return editorfilepath;
 }
 
 std::string Session::getSessionPassword()

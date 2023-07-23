@@ -145,6 +145,12 @@ void LogCryptor::encrypt()
     cleanupTempFile();
 }
 
+void LogCryptor::encrypt(std::string tempfilepath)
+{
+    currentTEMPFilePath = tempfilepath;
+    encrypt();
+}
+
 std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int ivLen, unsigned int tagLen)
 {
     auto infilename { log.logpath.string() };

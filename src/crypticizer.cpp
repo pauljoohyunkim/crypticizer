@@ -71,31 +71,29 @@ static void detectSession(Session& session, fs::path rootdir)
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
     }
-    auto crypticizierDirectory { rootdir/fs::path(CRYPTICIZER) };
-    auto hashfilepath { crypticizierDirectory/fs::path(HASHFILE) };
-    auto editorfilepath { crypticizierDirectory/fs::path(EDITORFILE) };
+    auto crypticizerDirectory { rootdir/fs::path(CRYPTICIZER) };
+    auto hashfilepath { crypticizerDirectory/fs::path(HASHFILE) };
+    auto editorfilepath { crypticizerDirectory/fs::path(EDITORFILE) };
 
     // Check for .crypticizer directory in the CWD
-    if (fs::exists(crypticizierDirectory))
+    if (fs::exists(crypticizerDirectory))
     {
-        session.setSessionPath(rootdir);
-
-
+        session.setSessionPath(rootdir, crypticizerDirectory, hashfilepath, editorfilepath);
     }
     else
     {
         // If not, create the .crypticizer directory in CWD
         // If this fails, halt the program.
-        if (!fs::create_directory(crypticizierDirectory))
+        if (!fs::create_directory(crypticizerDirectory))
         {
             std::cerr << "Error: Could not create "
-                      << crypticizierDirectory
+                      << crypticizerDirectory
                       << " directory. Make sure you have permission."
                       << std::endl;
             exit(CANNOT_CREATE_CRYPTICIZER_DIRECTORY);
         }
         newProjectMessage();
-        session.setSessionPath(rootdir);
+        session.setSessionPath(rootdir, crypticizerDirectory, hashfilepath, editorfilepath);
         std::cout << "Setting the password..." << std::endl;
         auto password = getPassword(true);
         session.setSessionPassword(password);
@@ -132,7 +130,7 @@ static void detectSession(Session& session, fs::path rootdir)
     {
         //Otherwise, create hashfile
         newProjectMessage();
-        session.setSessionPath(rootdir);
+        session.setSessionPath(rootdir, crypticizerDirectory, hashfilepath, editorfilepath);
         auto password = getPassword(true);
         session.setSessionPassword(password);
         // Create hash file
@@ -274,7 +272,7 @@ static void launchSession(Session& session)
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
-    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file");
+    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file\tc:Change Password");
     wrefresh(infoWin);
 
 
@@ -371,6 +369,65 @@ static void launchSession(Session& session)
             // Refresh
             loadSession(session);
             menuUpdateFromSession(session, menu);
+        }
+        else if (c == 'c')
+        {
+            auto rootdir { session.getSessionPath() };
+            auto crypticizerDirectory { session.getCrypticizerDirectory() };
+            auto hashfilepath { session.getHashfilepath() };
+            // Change password
+            // Exit out of ncurses temporarily
+            def_prog_mode();
+            endwin();
+
+            // Ask for current password.
+            std::cout << "Resetting the password..." << std::endl;
+            auto currentPass = getPassword();
+            Hasher hasher { HASHFUNCTION };
+            // Reading from hash file
+            auto referenceHasher = readHexdigestFile(hashfilepath, HASHFUNCTION, HASH_SALT_N_BYTES);
+            auto salt = referenceHasher.getSalt();
+            // Set salt and digest
+            hasher.setSalt(salt);
+            hasher.digestWithSalt(currentPass);
+
+            if (referenceHasher.hexsaltdigest() != hasher.hexsaltdigest())
+            {
+                //Password not matched!
+                std::cerr << "Error: Wrong password!" << std::endl;
+                std::cin.ignore();
+            }
+            else
+            {
+                // Ask for new password:
+                std::cout << "Setting new password!" << std::endl;
+                auto newPass = getPassword(true);
+                auto logs = session.getLogs();
+                LogCryptor lc_old { currentPass };
+                LogCryptor lc_new { newPass };
+                // For each of the logs, re-encrypt.
+                for (auto log : logs)
+                {
+                    lc_old.setLog(log);
+                    lc_new.setLog(log);
+
+                    // Decrypt
+                    auto tempPathString = lc_old.decrypt();
+
+                    // Encrypt
+                    lc_new.encrypt(tempPathString);
+                }
+                session.setSessionPassword(newPass);
+                Hasher hasher { HASHFUNCTION };
+                hasher.generateSalt(HASH_SALT_N_BYTES);
+                hasher.digestWithSalt(newPass);
+                hasher.dumpHexdigestToFile(hashfilepath);
+            }
+
+
+            // Restore
+            reset_prog_mode();
+            refresh();
         }
         updatePreview(previewWindow, menu, session);
         menu.draw();
