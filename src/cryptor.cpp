@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <memory>
 #include <unistd.h>
 #include <openssl/rand.h>
 #include <openssl/kdf.h>
@@ -47,11 +48,11 @@ void LogCryptor::setLog(Log alog)
 
 std::string LogCryptor::generateIV(unsigned int byteLength)
 {
-    auto buf = new unsigned char[byteLength];
+    auto buf { std::unique_ptr<unsigned char>(new unsigned char[byteLength]) };
+    auto bufptr { buf.get() };
 
-    RAND_bytes(buf, byteLength);
-    std::string ivString { buf, buf + byteLength };
-    delete [] buf;
+    RAND_bytes(bufptr, byteLength);
+    std::string ivString { bufptr, bufptr + byteLength };
 
     iv = ivString;
     return iv;
@@ -66,8 +67,9 @@ void LogCryptor::encrypt()
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
-    auto plaintext = new char [filelength];
-    auto plaintext_len = filelength;
+    auto plaintext_smart { std::unique_ptr<char>(new char [filelength]) };
+    auto plaintext { plaintext_smart.get() };
+    auto plaintext_len { filelength };
     // Read plaintext
     inFile.read(plaintext, plaintext_len);
     // Generate salt if not already generated
@@ -82,7 +84,8 @@ void LogCryptor::encrypt()
     }
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
-    auto ciphertext = new unsigned char [plaintext_len];
+    auto ciphertext_smart { std::unique_ptr<unsigned char>(new unsigned char [plaintext_len]) };
+    auto ciphertext { ciphertext_smart.get() };
     
     EVP_CIPHER_CTX* ctx;
     int len;
@@ -140,8 +143,6 @@ void LogCryptor::encrypt()
     // Salt + IV + CIPHERTEXT + Tag (16 bytes)
     outFile << salt << iv << ciphertextString << tagString;
 
-    delete [] plaintext;
-    delete [] ciphertext;
     cleanupTempFile();
 }
 
@@ -159,7 +160,8 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
-    auto infilecontent = new char [filelength];
+    auto infilecontent_smart { std::unique_ptr<char>(new char [filelength]) };
+    auto infilecontent { infilecontent_smart.get() };
     auto infilecontent_len = filelength;
     // Read encrypted file
     inFile.read(infilecontent, infilecontent_len);
@@ -172,11 +174,11 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
     iv = std::string { infilecontent + saltLen, infilecontent + saltLen + ivLen };
     std::string ciphertext { infilecontent + saltLen + ivLen, infilecontent + saltLen + ivLen + ciphertext_len };
     std::string tag { infilecontent + saltLen + ivLen + ciphertext_len, infilecontent + filelength };
-    delete [] infilecontent;
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
 
-    auto plaintext = new unsigned char [ciphertext_len];
+    auto plaintext_smart { std::unique_ptr<unsigned char>(new unsigned char [ciphertext_len]) };
+    auto plaintext { plaintext_smart.get() };
     int plaintext_len;
     int len;
     int ret;
@@ -234,7 +236,6 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
         refresh();
     }
     std::string plaintextString { plaintext, plaintext + plaintext_len };
-    delete [] plaintext;
 
     // Create temp file with the decrypted text.
     if (!preview)
@@ -256,7 +257,8 @@ std::string LogCryptor::createTempFile()
     auto tmpdirPath { std::filesystem::temp_directory_path() };
     auto tmpfilePath { tmpdirPath/std::string("crypticizer.XXXXXX") };
     auto tmpfilePathLength { tmpfilePath.string().length() };
-    auto tmpfilename = new char [tmpfilePathLength + 1];
+    auto tmpfilename_smart { std::unique_ptr<char>(new char [tmpfilePathLength + 1]) };
+    auto tmpfilename { tmpfilename_smart.get() };
     tmpfilename[tmpfilePathLength] = '\0';
     strcpy(tmpfilename, tmpfilePath.string().c_str());
 
@@ -264,7 +266,6 @@ std::string LogCryptor::createTempFile()
     auto fd = mkstemp(tmpfilename);
     tempfileHandle = fdopen(fd, "w");
     currentTEMPFilePath = std::string(tmpfilename);
-    delete [] tmpfilename;
 
     tempfileHandleClosed = false;
     return currentTEMPFilePath;
@@ -312,16 +313,15 @@ void Hasher::setDigest(std::string rawdigest)
 
 void Hasher::generateSalt(unsigned int length)
 {
-    auto buf = new unsigned char [length];
+    auto buf_smart { std::unique_ptr<unsigned char>(new unsigned char [length]) };
+    auto buf { buf_smart.get() };
     if (RAND_bytes(buf, length) != 1)
     {
-        delete [] buf;
         std::cerr << "Error: Cannot generate salt" << std::endl;
         exit(CANNOT_GENERATE_SALT);
     }
     // Successfully filled with random bytes
     salt = std::string { (char*) buf, length };
-    delete [] buf;
 }
 
 std::string Hasher::getSalt()
@@ -421,20 +421,19 @@ Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsig
     unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
     // Reading expected number of bytes only.
     unsigned int readByteLen = 2 * saltByteLen + 1 + 2 * digestByteLength;
-    auto buf = new char [readByteLen];
+    auto buf_smart { std::unique_ptr<char>(new char [readByteLen]) };
+    auto buf { buf_smart.get() };
     std::string pathString { path.string() };
     std::ifstream inFile { pathString };
 
     if (!inFile.read(buf, readByteLen))
     {
         std::cerr << "Error: Unexpected file format" << std::endl;
-        delete [] buf;
         inFile.close();
         exit(UNEXPECTED_FILE_FORMAT);
     }
 
     std::string hexDigestString { buf, buf+inFile.gcount() };
-    delete [] buf;
 
     // Check if form of (salt in hex)$(digest in hex)
     std::stringstream ss;
@@ -469,7 +468,8 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
     EVP_KDF* kdf;
     EVP_KDF_CTX* kctx;
 
-    auto buf = new unsigned char [keyExpandedLength];
+    auto buf_smart { std::unique_ptr<unsigned char>(new unsigned char [keyExpandedLength]) };
+    auto buf { buf_smart.get() };
     OSSL_PARAM params[6];
 
     kdf = EVP_KDF_fetch(NULL, "SCRYPT", NULL);
@@ -490,12 +490,10 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
 
     if (EVP_KDF_derive(kctx, buf, keyExpandedLength, params) <= 0)
     {
-        delete [] buf;
         std::cerr << "Error: Could not compute Scrypt key derivation function" << std::endl;
         exit(SCRYPT_ERROR);
     }
     std::string expandedKey { buf, buf+keyExpandedLength };
-    delete [] buf;
     EVP_KDF_CTX_free(kctx);
 	return expandedKey;
 }
