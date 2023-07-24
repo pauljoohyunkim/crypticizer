@@ -1,5 +1,6 @@
 #include <fstream>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include "filestrhelper.h"
 
@@ -18,7 +19,8 @@ std::string readFileToString(std::string pathstr)
     unsigned int filelen = infile.tellg();
     infile.seekg(0, infile.beg);
 
-    auto filecontent = new char [filelen];
+    auto filecontent_smart { std::unique_ptr<char>(new char [filelen]) };
+    auto filecontent { filecontent_smart.get() };
 
     // Read
     infile.read(filecontent, filelen);
@@ -26,7 +28,6 @@ std::string readFileToString(std::string pathstr)
 
     // Turn it into string
     std::string contentString { filecontent, filecontent + filelen };
-    delete [] filecontent;
 
     return contentString;
 }
