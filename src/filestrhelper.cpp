@@ -19,7 +19,8 @@ std::string readFileToString(std::string pathstr)
     unsigned int filelen = infile.tellg();
     infile.seekg(0, infile.beg);
 
-    auto filecontent_smart { std::unique_ptr<char>(new char [filelen]) };
+    //auto filecontent_smart { std::unique_ptr<char>(new char [filelen]) };
+    auto filecontent_smart { std::make_unique<char[]>(filelen)};
     auto filecontent { filecontent_smart.get() };
 
     // Read

@@ -48,7 +48,8 @@ void LogCryptor::setLog(Log alog)
 
 std::string LogCryptor::generateIV(unsigned int byteLength)
 {
-    auto buf { std::unique_ptr<unsigned char>(new unsigned char[byteLength]) };
+    //auto buf { std::unique_ptr<unsigned char>(new unsigned char[byteLength]) };
+    auto buf { std::make_unique<unsigned char[]>(byteLength) };
     auto bufptr { buf.get() };
 
     RAND_bytes(bufptr, byteLength);
@@ -67,7 +68,8 @@ void LogCryptor::encrypt()
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
-    auto plaintext_smart { std::unique_ptr<char>(new char [filelength]) };
+    //auto plaintext_smart { std::unique_ptr<char>(new char [filelength]) };
+    auto plaintext_smart { std::make_unique<char[]>(filelength)};
     auto plaintext { plaintext_smart.get() };
     auto plaintext_len { filelength };
     // Read plaintext
@@ -84,7 +86,8 @@ void LogCryptor::encrypt()
     }
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
-    auto ciphertext_smart { std::unique_ptr<unsigned char>(new unsigned char [plaintext_len]) };
+    //auto ciphertext_smart { std::unique_ptr<unsigned char>(new unsigned char [plaintext_len]) };
+    auto ciphertext_smart { std::make_unique<unsigned char[]>(plaintext_len) };
     auto ciphertext { ciphertext_smart.get() };
     
     EVP_CIPHER_CTX* ctx;
@@ -160,7 +163,8 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
-    auto infilecontent_smart { std::unique_ptr<char>(new char [filelength]) };
+    //auto infilecontent_smart { std::unique_ptr<char>(new char [filelength]) };
+    auto infilecontent_smart { std::make_unique<char[]>(filelength) };
     auto infilecontent { infilecontent_smart.get() };
     auto infilecontent_len = filelength;
     // Read encrypted file
@@ -177,7 +181,8 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
 
-    auto plaintext_smart { std::unique_ptr<unsigned char>(new unsigned char [ciphertext_len]) };
+    //auto plaintext_smart { std::unique_ptr<unsigned char>(new unsigned char [ciphertext_len]) };
+    auto plaintext_smart { std::make_unique<unsigned char[]>(ciphertext_len) };
     auto plaintext { plaintext_smart.get() };
     int plaintext_len;
     int len;
@@ -257,7 +262,8 @@ std::string LogCryptor::createTempFile()
     auto tmpdirPath { std::filesystem::temp_directory_path() };
     auto tmpfilePath { tmpdirPath/std::string("crypticizer.XXXXXX") };
     auto tmpfilePathLength { tmpfilePath.string().length() };
-    auto tmpfilename_smart { std::unique_ptr<char>(new char [tmpfilePathLength + 1]) };
+    //auto tmpfilename_smart { std::unique_ptr<char>(new char [tmpfilePathLength + 1]) };
+    auto tmpfilename_smart { std::make_unique<char[]>(tmpfilePathLength + 1) };
     auto tmpfilename { tmpfilename_smart.get() };
     tmpfilename[tmpfilePathLength] = '\0';
     strcpy(tmpfilename, tmpfilePath.string().c_str());
@@ -313,7 +319,8 @@ void Hasher::setDigest(std::string rawdigest)
 
 void Hasher::generateSalt(unsigned int length)
 {
-    auto buf_smart { std::unique_ptr<unsigned char>(new unsigned char [length]) };
+    //auto buf_smart { std::unique_ptr<unsigned char>(new unsigned char [length]) };
+    auto buf_smart { std::make_unique<unsigned char[]>(length) };
     auto buf { buf_smart.get() };
     if (RAND_bytes(buf, length) != 1)
     {
@@ -421,7 +428,8 @@ Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsig
     unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
     // Reading expected number of bytes only.
     unsigned int readByteLen = 2 * saltByteLen + 1 + 2 * digestByteLength;
-    auto buf_smart { std::unique_ptr<char>(new char [readByteLen]) };
+    //auto buf_smart { std::unique_ptr<char>(new char [readByteLen]) };
+    auto buf_smart { std::make_unique<char[]>(readByteLen) };
     auto buf { buf_smart.get() };
     std::string pathString { path.string() };
     std::ifstream inFile { pathString };
