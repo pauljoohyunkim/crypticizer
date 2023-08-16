@@ -21,6 +21,9 @@
 #include "errorcodes.h"
 
 static std::string hexToRaw(std::string hexstring);
+static void EVP_CIPHER_CTX_deleter(EVP_CIPHER_CTX* ctx);
+static void EVP_MD_deleter(EVP_MD* md);
+static void EVP_MD_CTX_deleter(EVP_MD_CTX* mdctx);
 
 static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigned int>> hftToMdName = 
 {
@@ -96,6 +99,8 @@ void LogCryptor::encrypt()
         std::cerr<< "EVP_CIPHER_CTX_new()" << std::endl;
     }
 
+    auto smart_EVP_CIPHER_CTX { std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)>(ctx, EVP_CIPHER_CTX_deleter) };
+
     if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
     {
         std::cerr << "EVP_EncryptInit_ex()" << std::endl;
@@ -132,7 +137,7 @@ void LogCryptor::encrypt()
         std::cerr << "EVP_CIPHER_CTX_ctrl" << std::endl;
     }
 
-    EVP_CIPHER_CTX_free(ctx);
+    //EVP_CIPHER_CTX_free(ctx);
 
     std::string ciphertextString { ciphertext, ciphertext + ciphertext_len };
     std::string tagString { tag, tag + CRYPTOR_TAG_LEN };
@@ -337,13 +342,16 @@ std::string Hasher::digestWithSalt(std::string message)
     unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
 
     md = EVP_MD_fetch(NULL, hashFunctionName.c_str(), NULL);
+    auto smart_md { std::unique_ptr<EVP_MD, void(*)(EVP_MD*)>(md, EVP_MD_deleter) };
+    
     mdctx = EVP_MD_CTX_new();
+    auto smart_mdctx { std::unique_ptr<EVP_MD_CTX, void(*)(EVP_MD_CTX*)>(mdctx, EVP_MD_CTX_deleter) };
 
     // Initialize
     if(!EVP_DigestInit_ex2(mdctx, md, NULL))
     {
         std::cerr << "Error: Cannot initialize hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
+        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_INITIALIZE_DIGEST);
     }
 
@@ -351,14 +359,14 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestUpdate(mdctx, salt.c_str(), salt.length()))
     {
         std::cerr << "Error: Cannot update hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
+        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_UPDATE_DIGEST);
     }
     // Message Digest
     if(!EVP_DigestUpdate(mdctx, message.c_str(), message.length()))
     {
         std::cerr << "Error: Cannot update hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
+        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_UPDATE_DIGEST);
     }
 
@@ -366,10 +374,10 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestFinal_ex(mdctx, md_value, NULL))
     {
         std::cerr << "Error: Cannot finalize hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
+        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_FINALIZE_DIGEST);
     }
-    EVP_MD_CTX_free(mdctx);
+    //EVP_MD_CTX_free(mdctx);
 
     digest = std::string(md_value, md_value+digestByteLength);
 
@@ -398,20 +406,6 @@ void Hasher::dumpHexdigestToFile(std::filesystem::path path)
     std::ofstream outFile { pathString };
     outFile << hexsaltdigest();
     outFile.close();
-}
-
-
-static std::string hexToRaw(std::string hexstring)
-{
-    std::string rawstring {};
-    for (unsigned int i = 0; i < hexstring.length(); i += 2)
-    {
-        std::string byteString = hexstring.substr(i, 2);
-        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
-        rawstring += byte;
-    }
-
-    return rawstring;
 }
 
 Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen)
@@ -496,4 +490,32 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
     std::string expandedKey { buf, buf+keyExpandedLength };
     EVP_KDF_CTX_free(kctx);
 	return expandedKey;
+}
+
+static std::string hexToRaw(std::string hexstring)
+{
+    std::string rawstring {};
+    for (unsigned int i = 0; i < hexstring.length(); i += 2)
+    {
+        std::string byteString = hexstring.substr(i, 2);
+        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
+        rawstring += byte;
+    }
+
+    return rawstring;
+}
+
+static void EVP_CIPHER_CTX_deleter(EVP_CIPHER_CTX* ctx)
+{
+    EVP_CIPHER_CTX_free(ctx);
+}
+
+static void EVP_MD_deleter(EVP_MD* md)
+{
+    EVP_MD_free(md);
+}
+
+static void EVP_MD_CTX_deleter(EVP_MD_CTX* mdctx)
+{
+    EVP_MD_CTX_free(mdctx);
 }
