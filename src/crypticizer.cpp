@@ -273,7 +273,7 @@ static void launchSession(Session& session)
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
-    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file\tc:Change Password");
+    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file\tc:Change Password\td:Dump Logs");
     wrefresh(infoWin);
 
 
