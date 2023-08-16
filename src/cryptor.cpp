@@ -24,6 +24,8 @@ static std::string hexToRaw(std::string hexstring);
 static void EVP_CIPHER_CTX_deleter(EVP_CIPHER_CTX* ctx);
 static void EVP_MD_deleter(EVP_MD* md);
 static void EVP_MD_CTX_deleter(EVP_MD_CTX* mdctx);
+static void EVP_KDF_deleter(EVP_KDF* kdf);
+static void EVP_KDF_CTX_deleter(EVP_KDF_CTX* kdf_ctx);
 
 static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigned int>> hftToMdName = 
 {
@@ -351,7 +353,6 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestInit_ex2(mdctx, md, NULL))
     {
         std::cerr << "Error: Cannot initialize hasher digester" << std::endl;
-        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_INITIALIZE_DIGEST);
     }
 
@@ -359,14 +360,12 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestUpdate(mdctx, salt.c_str(), salt.length()))
     {
         std::cerr << "Error: Cannot update hasher digester" << std::endl;
-        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_UPDATE_DIGEST);
     }
     // Message Digest
     if(!EVP_DigestUpdate(mdctx, message.c_str(), message.length()))
     {
         std::cerr << "Error: Cannot update hasher digester" << std::endl;
-        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_UPDATE_DIGEST);
     }
 
@@ -374,10 +373,8 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestFinal_ex(mdctx, md_value, NULL))
     {
         std::cerr << "Error: Cannot finalize hasher digester" << std::endl;
-        //EVP_MD_CTX_free(mdctx);
         exit(CANNOT_FINALIZE_DIGEST);
     }
-    //EVP_MD_CTX_free(mdctx);
 
     digest = std::string(md_value, md_value+digestByteLength);
 
@@ -467,8 +464,9 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
     OSSL_PARAM params[6];
 
     kdf = EVP_KDF_fetch(NULL, "SCRYPT", NULL);
+    auto smart_kdf { std::unique_ptr<EVP_KDF, void(*)(EVP_KDF*)>(kdf, EVP_KDF_deleter) };
     kctx = EVP_KDF_CTX_new(kdf);
-    EVP_KDF_free(kdf);
+    auto smart_kctx { std::unique_ptr<EVP_KDF_CTX, void(*)(EVP_KDF_CTX*)>(kctx, EVP_KDF_CTX_deleter) };
 
     uint64_t n = 1024;
     uint32_t r = 8;
@@ -488,7 +486,6 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
         exit(SCRYPT_ERROR);
     }
     std::string expandedKey { buf, buf+keyExpandedLength };
-    EVP_KDF_CTX_free(kctx);
 	return expandedKey;
 }
 
@@ -518,4 +515,14 @@ static void EVP_MD_deleter(EVP_MD* md)
 static void EVP_MD_CTX_deleter(EVP_MD_CTX* mdctx)
 {
     EVP_MD_CTX_free(mdctx);
+}
+
+static void EVP_KDF_deleter(EVP_KDF* kdf)
+{
+    EVP_KDF_free(kdf);
+}
+
+static void EVP_KDF_CTX_deleter(EVP_KDF_CTX* kdf_ctx)
+{
+    EVP_KDF_CTX_free(kdf_ctx);
 }
