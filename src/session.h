@@ -37,6 +37,9 @@ class Session
         // Clear Log
         void clearLog();
 
+        // Dump logs as plaintext file.
+        void dumpAsPlaintextFile(std::string pathstr);
+
     private:
         // Ordering
         void orderLogs();

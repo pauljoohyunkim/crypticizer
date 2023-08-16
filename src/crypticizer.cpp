@@ -430,6 +430,31 @@ static void launchSession(Session& session)
             reset_prog_mode();
             refresh();
         }
+        else if (c == 'd')
+        {
+            // Exit out of ncurses temporarily
+            def_prog_mode();
+            endwin();
+
+            std::cout << "Dumping password requires password verification" << std::endl;
+            auto passwordInput = getPassword(false);
+            if (passwordInput == session.getSessionPassword())
+            {
+                std::string dumpfilepathname;
+                std::cout << "Enter the dump file name: " << std::endl;
+                std::getline(std::cin, dumpfilepathname);
+                session.dumpAsPlaintextFile(dumpfilepathname);
+            }
+            else
+            {
+                std::cerr << "Password not matched!" << std::endl;
+                std::cin.ignore();
+            }
+
+            // Restore
+            reset_prog_mode();
+            refresh();
+        }
         updatePreview(previewWindow, menu, session);
         menu.draw();
         c = getch();

@@ -2,8 +2,10 @@
 #include <ctime>
 #include <filesystem>
 #include <algorithm>
+#include <fstream>
 #include <sstream>
 #include "session.h"
+#include "cryptor.h"
 
 static bool logCompare(Log log1, Log log2);
 
@@ -81,6 +83,22 @@ void Session::addLog(std::time_t timer)
 void Session::clearLog()
 {
     logs.clear();
+}
+void Session::dumpAsPlaintextFile(std::string pathstr)
+{
+    std::ofstream outfile { pathstr };
+
+    LogCryptor lc { password };
+    for (auto log : logs)
+    {
+        // Set log, get plaintext, then write to file.
+        lc.setLog(log);
+        outfile << log.getLocalTime() << std::endl;
+        outfile << lc.decrypt(true);
+        outfile << std::endl;
+    }
+
+    outfile.close();
 }
 
 void Session::orderLogs()
