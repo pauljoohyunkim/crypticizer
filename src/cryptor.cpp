@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <memory>
 #include <unistd.h>
 #include <openssl/rand.h>
 #include <openssl/kdf.h>
@@ -20,6 +21,11 @@
 #include "errorcodes.h"
 
 static std::string hexToRaw(std::string hexstring);
+static void EVP_CIPHER_CTX_deleter(EVP_CIPHER_CTX* ctx);
+static void EVP_MD_deleter(EVP_MD* md);
+static void EVP_MD_CTX_deleter(EVP_MD_CTX* mdctx);
+static void EVP_KDF_deleter(EVP_KDF* kdf);
+static void EVP_KDF_CTX_deleter(EVP_KDF_CTX* kdf_ctx);
 
 static const std::unordered_map<HashFunctionType, std::pair<std::string, unsigned int>> hftToMdName = 
 {
@@ -47,11 +53,11 @@ void LogCryptor::setLog(Log alog)
 
 std::string LogCryptor::generateIV(unsigned int byteLength)
 {
-    auto buf = new unsigned char[byteLength];
+    auto buf { std::make_unique<unsigned char[]>(byteLength) };
+    auto bufptr { buf.get() };
 
-    RAND_bytes(buf, byteLength);
-    std::string ivString { buf, buf + byteLength };
-    delete [] buf;
+    RAND_bytes(bufptr, byteLength);
+    std::string ivString { bufptr, bufptr + byteLength };
 
     iv = ivString;
     return iv;
@@ -66,8 +72,9 @@ void LogCryptor::encrypt()
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
-    auto plaintext = new char [filelength];
-    auto plaintext_len = filelength;
+    auto plaintext_smart { std::make_unique<char[]>(filelength)};
+    auto plaintext { plaintext_smart.get() };
+    auto plaintext_len { filelength };
     // Read plaintext
     inFile.read(plaintext, plaintext_len);
     // Generate salt if not already generated
@@ -82,7 +89,8 @@ void LogCryptor::encrypt()
     }
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
-    auto ciphertext = new unsigned char [plaintext_len];
+    auto ciphertext_smart { std::make_unique<unsigned char[]>(plaintext_len) };
+    auto ciphertext { ciphertext_smart.get() };
     
     EVP_CIPHER_CTX* ctx;
     int len;
@@ -92,6 +100,8 @@ void LogCryptor::encrypt()
     {
         std::cerr<< "EVP_CIPHER_CTX_new()" << std::endl;
     }
+
+    auto smart_EVP_CIPHER_CTX { std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)>(ctx, EVP_CIPHER_CTX_deleter) };
 
     if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
     {
@@ -129,7 +139,7 @@ void LogCryptor::encrypt()
         std::cerr << "EVP_CIPHER_CTX_ctrl" << std::endl;
     }
 
-    EVP_CIPHER_CTX_free(ctx);
+    //EVP_CIPHER_CTX_free(ctx);
 
     std::string ciphertextString { ciphertext, ciphertext + ciphertext_len };
     std::string tagString { tag, tag + CRYPTOR_TAG_LEN };
@@ -140,8 +150,6 @@ void LogCryptor::encrypt()
     // Salt + IV + CIPHERTEXT + Tag (16 bytes)
     outFile << salt << iv << ciphertextString << tagString;
 
-    delete [] plaintext;
-    delete [] ciphertext;
     cleanupTempFile();
 }
 
@@ -159,7 +167,8 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
     inFile.seekg(0, inFile.end);
     unsigned int filelength { static_cast<unsigned int>(inFile.tellg()) };
     inFile.seekg(0, inFile.beg);
-    auto infilecontent = new char [filelength];
+    auto infilecontent_smart { std::make_unique<char[]>(filelength) };
+    auto infilecontent { infilecontent_smart.get() };
     auto infilecontent_len = filelength;
     // Read encrypted file
     inFile.read(infilecontent, infilecontent_len);
@@ -172,11 +181,11 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
     iv = std::string { infilecontent + saltLen, infilecontent + saltLen + ivLen };
     std::string ciphertext { infilecontent + saltLen + ivLen, infilecontent + saltLen + ivLen + ciphertext_len };
     std::string tag { infilecontent + saltLen + ivLen + ciphertext_len, infilecontent + filelength };
-    delete [] infilecontent;
 
     auto expandedKey { scryptKDF(password, (int) 256 / 8, salt) };
 
-    auto plaintext = new unsigned char [ciphertext_len];
+    auto plaintext_smart { std::make_unique<unsigned char[]>(ciphertext_len) };
+    auto plaintext { plaintext_smart.get() };
     int plaintext_len;
     int len;
     int ret;
@@ -234,7 +243,6 @@ std::string LogCryptor::decrypt(bool preview, unsigned int saltLen, unsigned int
         refresh();
     }
     std::string plaintextString { plaintext, plaintext + plaintext_len };
-    delete [] plaintext;
 
     // Create temp file with the decrypted text.
     if (!preview)
@@ -256,7 +264,8 @@ std::string LogCryptor::createTempFile()
     auto tmpdirPath { std::filesystem::temp_directory_path() };
     auto tmpfilePath { tmpdirPath/std::string("crypticizer.XXXXXX") };
     auto tmpfilePathLength { tmpfilePath.string().length() };
-    auto tmpfilename = new char [tmpfilePathLength + 1];
+    auto tmpfilename_smart { std::make_unique<char[]>(tmpfilePathLength + 1) };
+    auto tmpfilename { tmpfilename_smart.get() };
     tmpfilename[tmpfilePathLength] = '\0';
     strcpy(tmpfilename, tmpfilePath.string().c_str());
 
@@ -264,7 +273,6 @@ std::string LogCryptor::createTempFile()
     auto fd = mkstemp(tmpfilename);
     tempfileHandle = fdopen(fd, "w");
     currentTEMPFilePath = std::string(tmpfilename);
-    delete [] tmpfilename;
 
     tempfileHandleClosed = false;
     return currentTEMPFilePath;
@@ -312,16 +320,15 @@ void Hasher::setDigest(std::string rawdigest)
 
 void Hasher::generateSalt(unsigned int length)
 {
-    auto buf = new unsigned char [length];
+    auto buf_smart { std::make_unique<unsigned char[]>(length) };
+    auto buf { buf_smart.get() };
     if (RAND_bytes(buf, length) != 1)
     {
-        delete [] buf;
         std::cerr << "Error: Cannot generate salt" << std::endl;
         exit(CANNOT_GENERATE_SALT);
     }
     // Successfully filled with random bytes
     salt = std::string { (char*) buf, length };
-    delete [] buf;
 }
 
 std::string Hasher::getSalt()
@@ -337,13 +344,15 @@ std::string Hasher::digestWithSalt(std::string message)
     unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
 
     md = EVP_MD_fetch(NULL, hashFunctionName.c_str(), NULL);
+    auto smart_md { std::unique_ptr<EVP_MD, void(*)(EVP_MD*)>(md, EVP_MD_deleter) };
+    
     mdctx = EVP_MD_CTX_new();
+    auto smart_mdctx { std::unique_ptr<EVP_MD_CTX, void(*)(EVP_MD_CTX*)>(mdctx, EVP_MD_CTX_deleter) };
 
     // Initialize
     if(!EVP_DigestInit_ex2(mdctx, md, NULL))
     {
         std::cerr << "Error: Cannot initialize hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
         exit(CANNOT_INITIALIZE_DIGEST);
     }
 
@@ -351,14 +360,12 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestUpdate(mdctx, salt.c_str(), salt.length()))
     {
         std::cerr << "Error: Cannot update hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
         exit(CANNOT_UPDATE_DIGEST);
     }
     // Message Digest
     if(!EVP_DigestUpdate(mdctx, message.c_str(), message.length()))
     {
         std::cerr << "Error: Cannot update hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
         exit(CANNOT_UPDATE_DIGEST);
     }
 
@@ -366,10 +373,8 @@ std::string Hasher::digestWithSalt(std::string message)
     if(!EVP_DigestFinal_ex(mdctx, md_value, NULL))
     {
         std::cerr << "Error: Cannot finalize hasher digester" << std::endl;
-        EVP_MD_CTX_free(mdctx);
         exit(CANNOT_FINALIZE_DIGEST);
     }
-    EVP_MD_CTX_free(mdctx);
 
     digest = std::string(md_value, md_value+digestByteLength);
 
@@ -400,20 +405,6 @@ void Hasher::dumpHexdigestToFile(std::filesystem::path path)
     outFile.close();
 }
 
-
-static std::string hexToRaw(std::string hexstring)
-{
-    std::string rawstring {};
-    for (unsigned int i = 0; i < hexstring.length(); i += 2)
-    {
-        std::string byteString = hexstring.substr(i, 2);
-        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
-        rawstring += byte;
-    }
-
-    return rawstring;
-}
-
 Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsigned int saltByteLen)
 {
     Hasher hasher { hft };
@@ -421,20 +412,19 @@ Hasher readHexdigestFile(std::filesystem::path path, HashFunctionType hft, unsig
     unsigned int digestByteLength { (unsigned int) (digestLength / 8) };
     // Reading expected number of bytes only.
     unsigned int readByteLen = 2 * saltByteLen + 1 + 2 * digestByteLength;
-    auto buf = new char [readByteLen];
+    auto buf_smart { std::make_unique<char[]>(readByteLen) };
+    auto buf { buf_smart.get() };
     std::string pathString { path.string() };
     std::ifstream inFile { pathString };
 
     if (!inFile.read(buf, readByteLen))
     {
         std::cerr << "Error: Unexpected file format" << std::endl;
-        delete [] buf;
         inFile.close();
         exit(UNEXPECTED_FILE_FORMAT);
     }
 
     std::string hexDigestString { buf, buf+inFile.gcount() };
-    delete [] buf;
 
     // Check if form of (salt in hex)$(digest in hex)
     std::stringstream ss;
@@ -469,12 +459,14 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
     EVP_KDF* kdf;
     EVP_KDF_CTX* kctx;
 
-    auto buf = new unsigned char [keyExpandedLength];
+    auto buf_smart { std::make_unique<unsigned char[]>(keyExpandedLength) };
+    auto buf { buf_smart.get() };
     OSSL_PARAM params[6];
 
     kdf = EVP_KDF_fetch(NULL, "SCRYPT", NULL);
+    auto smart_kdf { std::unique_ptr<EVP_KDF, void(*)(EVP_KDF*)>(kdf, EVP_KDF_deleter) };
     kctx = EVP_KDF_CTX_new(kdf);
-    EVP_KDF_free(kdf);
+    auto smart_kctx { std::unique_ptr<EVP_KDF_CTX, void(*)(EVP_KDF_CTX*)>(kctx, EVP_KDF_CTX_deleter) };
 
     uint64_t n = 1024;
     uint32_t r = 8;
@@ -490,12 +482,47 @@ std::string scryptKDF(std::string key, unsigned int keyExpandedLength, std::stri
 
     if (EVP_KDF_derive(kctx, buf, keyExpandedLength, params) <= 0)
     {
-        delete [] buf;
         std::cerr << "Error: Could not compute Scrypt key derivation function" << std::endl;
         exit(SCRYPT_ERROR);
     }
     std::string expandedKey { buf, buf+keyExpandedLength };
-    delete [] buf;
-    EVP_KDF_CTX_free(kctx);
 	return expandedKey;
+}
+
+static std::string hexToRaw(std::string hexstring)
+{
+    std::string rawstring {};
+    for (unsigned int i = 0; i < hexstring.length(); i += 2)
+    {
+        std::string byteString = hexstring.substr(i, 2);
+        auto byte = (unsigned char) std::stoi(byteString, nullptr, 16);
+        rawstring += byte;
+    }
+
+    return rawstring;
+}
+
+static void EVP_CIPHER_CTX_deleter(EVP_CIPHER_CTX* ctx)
+{
+    EVP_CIPHER_CTX_free(ctx);
+}
+
+static void EVP_MD_deleter(EVP_MD* md)
+{
+    EVP_MD_free(md);
+}
+
+static void EVP_MD_CTX_deleter(EVP_MD_CTX* mdctx)
+{
+    EVP_MD_CTX_free(mdctx);
+}
+
+static void EVP_KDF_deleter(EVP_KDF* kdf)
+{
+    EVP_KDF_free(kdf);
+}
+
+static void EVP_KDF_CTX_deleter(EVP_KDF_CTX* kdf_ctx)
+{
+    EVP_KDF_CTX_free(kdf_ctx);
 }
