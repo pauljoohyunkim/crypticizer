@@ -28,6 +28,7 @@ Session crypticizerSession {};
 
 int main(int argc, char** argv)
 {
+    std::cout << "crypticizer " << VERSION << std::endl;
     /*
      * Usage: crypticizer [session path]
      * where session path is the directory of the project.
