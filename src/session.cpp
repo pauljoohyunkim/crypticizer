@@ -93,9 +93,9 @@ void Session::dumpAsPlaintextFile(std::string pathstr)
     {
         // Set log, get plaintext, then write to file.
         lc.setLog(log);
+        outfile << "======= " << log.getTimer() << " ";
         outfile << log.getLocalTime() << std::endl;
         outfile << lc.decrypt(true);
-        outfile << std::endl;
     }
 
     outfile.close();
@@ -149,4 +149,8 @@ std::string Log::getLocalTime()
     ss << asctime(timeinfo);
 
     return ss.str();
+}
+std::time_t Log::getTimer()
+{
+    return timer;
 }

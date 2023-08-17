@@ -65,6 +65,7 @@ class Log
         void generateLogPathFromTimer();
 
         std::string getLocalTime();
+        std::time_t getTimer();
 
         std::filesystem::path logpath {};
     private:
