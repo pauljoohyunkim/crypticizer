@@ -440,14 +440,20 @@ static void launchSession(Session& session)
             auto passwordInput = getPassword(false);
             if (passwordInput == session.getSessionPassword())
             {
-                std::string dumpfilepathname;
-                std::cout << "Enter the dump file name: " << std::endl;
+                std::string dumpfilepathname {};
+                std::cout << "Enter the dump file name (default: dump.txt): " << std::endl;
                 std::getline(std::cin, dumpfilepathname);
+                if (dumpfilepathname.empty())
+                {
+                    dumpfilepathname = "dump.txt";
+                }
                 session.dumpAsPlaintextFile(dumpfilepathname);
+                std::cout << "Logs dumped to " << dumpfilepathname << " (Press Enter to go back)" << std::endl;
+                std::cin.ignore();
             }
             else
             {
-                std::cerr << "Password not matched!" << std::endl;
+                std::cerr << "Password not matched! (Press Enter to go back)" << std::endl;
                 std::cin.ignore();
             }
 
