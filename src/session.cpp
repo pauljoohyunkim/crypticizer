@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <regex>
 #include "session.h"
 #include "cryptor.h"
 
@@ -107,6 +108,18 @@ void Session::loadPlaintextFile(std::string pathstr)
     {
         std::string fileline;
         std::getline(infile, fileline);
+
+        const std::regex newEntryDetection { "^======= [0-9]+.+" };
+        if (std::regex_match(fileline, newEntryDetection))
+        {
+            const std::regex time_t_detection { "[0-9]+" };
+            std::smatch match;
+            std::regex_search(fileline, match, time_t_detection);
+            // Regex guaranteed to exist.
+            std::string filename { match.str() };
+            filename += ".crpt";
+        }
+        
     }
 
     infile.close();
