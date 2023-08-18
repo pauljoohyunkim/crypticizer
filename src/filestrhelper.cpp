@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
 #include "filestrhelper.h"
 
 
@@ -30,4 +31,26 @@ std::string readFileToString(std::string pathstr)
     std::string contentString { filecontent, filecontent + filelen };
 
     return contentString;
+}
+
+std::vector<std::string> readFileToStrLines(std::filesystem::path pathstr)
+{
+    return readFileToStrLines(pathstr.string());
+}
+
+std::vector<std::string> readFileToStrLines(std::string pathstr)
+{
+    std::vector<std::string> lines {};
+    std::ifstream infile { pathstr };
+
+    while (!infile.eof())
+    {
+        std::string strline {};
+        std::getline(infile, strline);
+        lines.push_back(strline);
+    }
+
+    infile.close();
+
+    return lines;
 }

@@ -5,8 +5,10 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <vector>
 #include "session.h"
 #include "cryptor.h"
+#include "filestrhelper.h"
 
 static bool logCompare(Log log1, Log log2);
 
@@ -95,7 +97,7 @@ void Session::dumpAsPlaintextFile(std::string pathstr)
         // Set log, get plaintext, then write to file.
         lc.setLog(log);
         outfile << "======= " << log.getTimer() << " ";
-        outfile << log.getLocalTime() << std::endl;
+        outfile << log.getLocalTime();
         outfile << lc.decrypt(true);
     }
 
@@ -103,26 +105,7 @@ void Session::dumpAsPlaintextFile(std::string pathstr)
 }
 void Session::loadPlaintextFile(std::string pathstr)
 {
-    std::ifstream infile { pathstr };
-    while (!infile.eof())
-    {
-        std::string fileline;
-        std::getline(infile, fileline);
-
-        const std::regex newEntryDetection { "^======= [0-9]+.+" };
-        if (std::regex_match(fileline, newEntryDetection))
-        {
-            const std::regex time_t_detection { "[0-9]+" };
-            std::smatch match;
-            std::regex_search(fileline, match, time_t_detection);
-            // Regex guaranteed to exist.
-            std::string filename { match.str() };
-            filename += ".crpt";
-        }
-        
-    }
-
-    infile.close();
+    std::vector<std::string> filelines { readFileToStrLines(pathstr) };
 }
 
 void Session::orderLogs()
