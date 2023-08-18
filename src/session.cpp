@@ -100,6 +100,17 @@ void Session::dumpAsPlaintextFile(std::string pathstr)
 
     outfile.close();
 }
+void Session::loadPlaintextFile(std::string pathstr)
+{
+    std::ifstream infile { pathstr };
+    while (!infile.eof())
+    {
+        std::string fileline;
+        std::getline(infile, fileline);
+    }
+
+    infile.close();
+}
 
 void Session::orderLogs()
 {
