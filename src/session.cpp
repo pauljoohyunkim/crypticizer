@@ -148,6 +148,7 @@ void Session::loadPlaintextFile(std::string pathstr)
     {
         LogCryptor lc { password };
         Log log { sessionPath, iLog.timestamp };
+        lc.setLog(log);
 
         std::string tempentryPathString = lc.createTempFile();
 
