@@ -67,6 +67,10 @@ F5 key for refreshing.
 
 'q' key for quitting.
 
+'d' key for dumping to plaintext.
+
+'L' key (Shift + l) for loading the dumped file back. (Use with caution.)
+
 ## Usage (Detailed)
 To start a project, simply create an empty directory and navigate to it,
 then run the program.
@@ -102,6 +106,13 @@ You can refresh the list (if an entry that you expected does not show up) by hit
 You can change password by pressing 'c'.
 
 You can quit the program by pressing 'q'.
+
+You can dump the logs into one plaintext by pressing 'd'.
+Note that I am not taking any responsibility as where you save this.
+
+You can reload the logs from the dumped plaintext file (not modified please!!!) by pressing 'L' (Shift key and 'l' key together).
+Note that this will first clear out any *.crpt files, and restore to the dumped session.
+Also there may be a few extra newline characters at the end of the logs.
 
 ## Specifications
 Master password is hashed by SHA512 with a salt.
