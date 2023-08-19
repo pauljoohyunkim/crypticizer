@@ -109,6 +109,7 @@ void Session::loadPlaintextFile(std::string pathstr)
     {
         std::string filename {};
         std::string logcontent {};
+        std::time_t timestamp {};
     };
     std::vector<IntermediateLog> intermediateLogs {};
     std::vector<std::string> filelines { readFileToStrLines(pathstr) };
@@ -124,6 +125,7 @@ void Session::loadPlaintextFile(std::string pathstr)
             std::regex_search(filelines[fileline_index], logFilenameMatch, logFilenameFilter);
             IntermediateLog iLog;
             iLog.filename = logFilenameMatch.str();
+            iLog.timestamp = std::stoi(logFilenameMatch.str());
             iLog.filename += ".crpt";
             fileline_index++;
             /* Add log lines*/
@@ -133,14 +135,28 @@ void Session::loadPlaintextFile(std::string pathstr)
                 iLog.logcontent += "\n";
                 fileline_index++;
                 if (fileline_index >= filelines.size())
-                break;
+                {
+                    break;
+                }
             }
             intermediateLogs.push_back(iLog);
         }
     }
 
     /* Write files */
-    
+    for (auto iLog : intermediateLogs)
+    {
+        LogCryptor lc { password };
+        Log log { sessionPath, iLog.timestamp };
+
+        std::string tempentryPathString = lc.createTempFile();
+
+        std::ofstream outfile { tempentryPathString };
+        outfile << iLog.logcontent;
+        outfile.close();
+
+        lc.encrypt();
+    }
 }
 
 void Session::orderLogs()
