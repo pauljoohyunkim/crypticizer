@@ -1,4 +1,5 @@
 #include <string>
+#include <cstdio>
 #include <ctime>
 #include <filesystem>
 #include <algorithm>
@@ -140,6 +141,16 @@ void Session::loadPlaintextFile(std::string pathstr)
                 }
             }
             intermediateLogs.push_back(iLog);
+        }
+    }
+
+    /* Remove all existing *.crpt files */
+    for (auto filepath : std::filesystem::directory_iterator(sessionPath))
+    {
+        const std::regex crptFilter { ".*[0-9]+\\.crpt$" };
+        if (std::regex_match(filepath.path().string(), crptFilter))
+        {
+            std::remove(filepath.path().string().c_str());
         }
     }
 
