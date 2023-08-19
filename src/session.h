@@ -40,6 +40,8 @@ class Session
         // Dump logs as plaintext file.
         void dumpAsPlaintextFile(std::string pathstr);
 
+        void loadPlaintextFile(std::string pathstr);
+
     private:
         // Ordering
         void orderLogs();

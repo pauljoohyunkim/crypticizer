@@ -461,6 +461,29 @@ static void launchSession(Session& session)
             reset_prog_mode();
             refresh();
         }
+        else if (c == 'L')
+        {
+            // Exit out of ncurses temporarily
+            def_prog_mode();
+            endwin();
+
+            std::cout << "Loading from file requires file name (default: dump.txt): " ;
+            std::string dumpfilename;
+            std::getline(std::cin, dumpfilename);
+            if (dumpfilename.empty())
+            {
+                dumpfilename = "dump.txt";
+            }
+            session.loadPlaintextFile(dumpfilename);
+
+            // Restore
+            reset_prog_mode();
+            refresh();
+
+            // Refresh
+            loadSession(session);
+            menuUpdateFromSession(session, menu);
+        }
         updatePreview(previewWindow, menu, session);
         menu.draw();
         c = getch();

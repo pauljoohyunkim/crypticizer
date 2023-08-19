@@ -10,6 +10,8 @@
 
 std::string readFileToString(std::filesystem::path path);
 std::string readFileToString(std::string pathstr);
+std::vector<std::string> readFileToStrLines(std::filesystem::path pathstr);
+std::vector<std::string> readFileToStrLines(std::string pathstr);
 
 #endif
 
