@@ -273,7 +273,7 @@ static void launchSession(Session& session)
     // Info Window
     auto infoIndex { wm.createWindow(3, x, y-3, 0) };
     auto infoWin { wm[infoIndex] };
-    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file\tc:Change Password");
+    mvwprintw(infoWin, 1, 1, "Info:\tArrow keys (or h,j,k,l):Navigate\t Enter:Edit\t+:New file\tc:Change Password\td:Dump Logs\tL:Load Logs");
     wrefresh(infoWin);
 
 
@@ -429,6 +429,60 @@ static void launchSession(Session& session)
             // Restore
             reset_prog_mode();
             refresh();
+        }
+        else if (c == 'd')
+        {
+            // Exit out of ncurses temporarily
+            def_prog_mode();
+            endwin();
+
+            std::cout << "Dumping password requires password verification" << std::endl;
+            auto passwordInput = getPassword(false);
+            if (passwordInput == session.getSessionPassword())
+            {
+                std::string dumpfilepathname {};
+                std::cout << "Enter the dump file name (default: dump.txt): " << std::endl;
+                std::getline(std::cin, dumpfilepathname);
+                if (dumpfilepathname.empty())
+                {
+                    dumpfilepathname = "dump.txt";
+                }
+                session.dumpAsPlaintextFile(dumpfilepathname);
+                std::cout << "Logs dumped to " << dumpfilepathname << " (Press Enter to go back)" << std::endl;
+                std::cin.ignore();
+            }
+            else
+            {
+                std::cerr << "Password not matched! (Press Enter to go back)" << std::endl;
+                std::cin.ignore();
+            }
+
+            // Restore
+            reset_prog_mode();
+            refresh();
+        }
+        else if (c == 'L')
+        {
+            // Exit out of ncurses temporarily
+            def_prog_mode();
+            endwin();
+
+            std::cout << "Loading from file requires file name (default: dump.txt): " ;
+            std::string dumpfilename;
+            std::getline(std::cin, dumpfilename);
+            if (dumpfilename.empty())
+            {
+                dumpfilename = "dump.txt";
+            }
+            session.loadPlaintextFile(dumpfilename);
+
+            // Restore
+            reset_prog_mode();
+            refresh();
+
+            // Refresh
+            loadSession(session);
+            menuUpdateFromSession(session, menu);
         }
         updatePreview(previewWindow, menu, session);
         menu.draw();

@@ -1,9 +1,15 @@
 #include <string>
+#include <cstdio>
 #include <ctime>
 #include <filesystem>
 #include <algorithm>
+#include <fstream>
 #include <sstream>
+#include <regex>
+#include <vector>
 #include "session.h"
+#include "cryptor.h"
+#include "filestrhelper.h"
 
 static bool logCompare(Log log1, Log log2);
 
@@ -82,6 +88,88 @@ void Session::clearLog()
 {
     logs.clear();
 }
+void Session::dumpAsPlaintextFile(std::string pathstr)
+{
+    std::ofstream outfile { pathstr };
+
+    LogCryptor lc { password };
+    for (auto log : logs)
+    {
+        // Set log, get plaintext, then write to file.
+        lc.setLog(log);
+        outfile << "======= " << log.getTimer() << " ";
+        outfile << log.getLocalTime();
+        outfile << lc.decrypt(true);
+    }
+
+    outfile.close();
+}
+void Session::loadPlaintextFile(std::string pathstr)
+{
+    struct IntermediateLog
+    {
+        std::string filename {};
+        std::string logcontent {};
+        std::time_t timestamp {};
+    };
+    std::vector<IntermediateLog> intermediateLogs {};
+    std::vector<std::string> filelines { readFileToStrLines(pathstr) };
+    unsigned int fileline_index { 0 };
+    while (fileline_index < filelines.size())
+    {
+        /* Detect ======= lines */
+        const std::regex filter { "^======= [0-9]+.*" };
+        if (std::regex_match(filelines[fileline_index], filter))
+        {
+            std::smatch logFilenameMatch;
+            const std::regex logFilenameFilter { "[0-9]+" };
+            std::regex_search(filelines[fileline_index], logFilenameMatch, logFilenameFilter);
+            IntermediateLog iLog;
+            iLog.filename = logFilenameMatch.str();
+            iLog.timestamp = std::stoi(logFilenameMatch.str());
+            iLog.filename += ".crpt";
+            fileline_index++;
+            /* Add log lines*/
+            while (!std::regex_match(filelines[fileline_index], filter))
+            {
+                iLog.logcontent += filelines[fileline_index];
+                iLog.logcontent += "\n";
+                fileline_index++;
+                if (fileline_index >= filelines.size())
+                {
+                    break;
+                }
+            }
+            intermediateLogs.push_back(iLog);
+        }
+    }
+
+    /* Remove all existing *.crpt files */
+    for (auto filepath : std::filesystem::directory_iterator(sessionPath))
+    {
+        const std::regex crptFilter { ".*[0-9]+\\.crpt$" };
+        if (std::regex_match(filepath.path().string(), crptFilter))
+        {
+            std::remove(filepath.path().string().c_str());
+        }
+    }
+
+    /* Write files */
+    for (auto iLog : intermediateLogs)
+    {
+        LogCryptor lc { password };
+        Log log { sessionPath, iLog.timestamp };
+        lc.setLog(log);
+
+        std::string tempentryPathString = lc.createTempFile();
+
+        std::ofstream outfile { tempentryPathString };
+        outfile << iLog.logcontent;
+        outfile.close();
+
+        lc.encrypt();
+    }
+}
 
 void Session::orderLogs()
 {
@@ -131,4 +219,8 @@ std::string Log::getLocalTime()
     ss << asctime(timeinfo);
 
     return ss.str();
+}
+std::time_t Log::getTimer()
+{
+    return timer;
 }

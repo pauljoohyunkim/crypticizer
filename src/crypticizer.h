@@ -7,7 +7,7 @@
 #define HASHFUNCTION HFT_SHA512
 #define HASH_SALT_N_BYTES 16
 
-#define VERSION "1.1.0"
+#define VERSION "1.2.2"
 
 #include "session.h"
 

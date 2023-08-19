@@ -37,6 +37,11 @@ class Session
         // Clear Log
         void clearLog();
 
+        // Dump logs as plaintext file.
+        void dumpAsPlaintextFile(std::string pathstr);
+
+        void loadPlaintextFile(std::string pathstr);
+
     private:
         // Ordering
         void orderLogs();
@@ -62,6 +67,7 @@ class Log
         void generateLogPathFromTimer();
 
         std::string getLocalTime();
+        std::time_t getTimer();
 
         std::filesystem::path logpath {};
     private:
