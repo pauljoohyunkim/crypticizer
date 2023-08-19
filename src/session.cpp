@@ -106,6 +106,21 @@ void Session::dumpAsPlaintextFile(std::string pathstr)
 void Session::loadPlaintextFile(std::string pathstr)
 {
     std::vector<std::string> filelines { readFileToStrLines(pathstr) };
+    std::vector<unsigned int> newEntryLabelIndices {};
+    unsigned int fileline_index { 0 };
+    while (fileline_index < filelines.size())
+    {
+        /* Detect ======= lines */
+        const std::regex filter { "^======= [0-9]+.*" };
+        if (std::regex_match(filelines[fileline_index], filter))
+        {
+            newEntryLabelIndices.push_back(fileline_index);
+        }
+        fileline_index++;
+    }
+
+    /* Write files */
+    
 }
 
 void Session::orderLogs()
