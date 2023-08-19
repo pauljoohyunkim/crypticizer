@@ -105,8 +105,13 @@ void Session::dumpAsPlaintextFile(std::string pathstr)
 }
 void Session::loadPlaintextFile(std::string pathstr)
 {
+    struct IntermediateLog
+    {
+        std::string filename {};
+        std::string logcontent {};
+    };
+    std::vector<IntermediateLog> intermediateLogs {};
     std::vector<std::string> filelines { readFileToStrLines(pathstr) };
-    std::vector<unsigned int> newEntryLabelIndices {};
     unsigned int fileline_index { 0 };
     while (fileline_index < filelines.size())
     {
@@ -114,9 +119,24 @@ void Session::loadPlaintextFile(std::string pathstr)
         const std::regex filter { "^======= [0-9]+.*" };
         if (std::regex_match(filelines[fileline_index], filter))
         {
-            newEntryLabelIndices.push_back(fileline_index);
+            std::smatch logFilenameMatch;
+            const std::regex logFilenameFilter { "[0-9]+" };
+            std::regex_search(filelines[fileline_index], logFilenameMatch, logFilenameFilter);
+            IntermediateLog iLog;
+            iLog.filename = logFilenameMatch.str();
+            iLog.filename += ".crpt";
+            fileline_index++;
+            /* Add log lines*/
+            while (!std::regex_match(filelines[fileline_index], filter))
+            {
+                iLog.logcontent += filelines[fileline_index];
+                iLog.logcontent += "\n";
+                fileline_index++;
+                if (fileline_index >= filelines.size())
+                break;
+            }
+            intermediateLogs.push_back(iLog);
         }
-        fileline_index++;
     }
 
     /* Write files */
