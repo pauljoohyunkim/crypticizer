@@ -5,6 +5,8 @@
 
 // Reference for implementing commit:
 // https://stackoverflow.com/questions/27672722/libgit2-commit-example
+// https://libgit2.org/libgit2/ex/HEAD/commit.html
+// https://github.com/libgit2/libgit2/blob/091165c53b2bcd5d41fb71d43ed5a23a3d96bf5d/tests/object/commit/commitstagedfile.c#L21-L134
 
 static void smart_git_repository_free(git_repository* repo);
 static void smart_git_index_free(git_index* idx);
@@ -42,6 +44,11 @@ SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_rep
 
     auto smart_signature { SMART_GIT_WRAP(git_signature)(signature, smart_git_signature_free) };
     return smart_signature;
+}
+
+void smart_git_index_write_tree(git_oid* tree_oid, SMART_GIT_WRAP(git_index)& index)
+{
+    git_index_write_tree(tree_oid, index.get());
 }
 
 

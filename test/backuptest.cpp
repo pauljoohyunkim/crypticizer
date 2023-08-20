@@ -10,11 +10,13 @@ int main()
         auto repo = smart_git_repository_open("temprepo");
         auto idx = smart_git_repository_index(repo);
         auto signature = smart_git_signature_default(repo);
+        git_oid commit_oid, tree_oid;
 
         smart_git_index_add_by_path(idx, "testfile1");
         smart_git_index_add_by_path(idx, "testfile2");
         smart_git_index_add_by_path(idx, "testfile3");
         smart_git_index_add_by_path(idx, "repodir/testfile4");
+        
 
     }
 

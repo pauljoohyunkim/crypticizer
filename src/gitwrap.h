@@ -24,6 +24,7 @@ SMART_GIT_WRAP(git_repository) smart_git_repository_open(std::string repoPath);
 SMART_GIT_WRAP(git_index) smart_git_repository_index(SMART_GIT_WRAP(git_repository)& repo);
 void smart_git_index_add_by_path(SMART_GIT_WRAP(git_index)& index, std::string filepath);
 SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_repository)& repo);
+void smart_git_index_write_tree(git_oid* tree_oid, SMART_GIT_WRAP(git_index)& index);
 
 
 //void smart_git_repository_free(git_repository* repo);
