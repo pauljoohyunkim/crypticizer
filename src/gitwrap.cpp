@@ -3,6 +3,9 @@
 #include <git2.h>
 #include "gitwrap.h"
 
+// Reference for implementing commit:
+// https://stackoverflow.com/questions/27672722/libgit2-commit-example
+
 static void smart_git_repository_free(git_repository* repo);
 static void smart_git_index_free(git_index* idx);
 static void smart_git_signature_free(git_signature* signature);
