@@ -3,6 +3,9 @@
 #include <git2.h>
 #include "gitwrap.h"
 
+static void smart_git_repository_free(git_repository* repo);
+static void smart_git_index_free(git_index* idx);
+
 /* Open git repository */
 std::unique_ptr<git_repository, void(*)(git_repository*)>
 smart_git_repository_open(std::string repoPath)
@@ -29,11 +32,11 @@ smart_git_repository_index(std::unique_ptr<git_repository, void(*)(git_repositor
  * Not to be explicitly called.
 */
 
-void smart_git_repository_free(git_repository* repo)
+static void smart_git_repository_free(git_repository* repo)
 {
     git_repository_free(repo);
 }
-void smart_git_index_free(git_index* idx)
+static void smart_git_index_free(git_index* idx)
 {
     git_index_free(idx);
 }
