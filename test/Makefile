@@ -4,9 +4,10 @@ RM=rm -rf
 TEMP_GIT_REPO=temprepo
 
 backuptest: backuptest.cpp ../src/backup.cpp ../src/gitwrap.cpp
+	$(RM) $(TEMP_GIT_REPO)
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lgit2
 	mkdir -pv $(TEMP_GIT_REPO)
-	cd $(TEMP_GIT_REPO); touch testfile; git init
+	cd $(TEMP_GIT_REPO); touch testfile{1,2,3}; git init
 
 boxwritetest: boxwritetest.cpp ../src/session.cpp ../src/menu.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lncurses

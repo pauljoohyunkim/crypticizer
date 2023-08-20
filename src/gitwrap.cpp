@@ -26,6 +26,12 @@ smart_git_repository_index(std::unique_ptr<git_repository, void(*)(git_repositor
     auto smart_repo { std::unique_ptr<git_index, void(*)(git_index*)>(idx, smart_git_index_free) };
     return smart_repo;
 }
+/* Add file */
+void smart_git_index_add_by_path(std::unique_ptr<git_index, void(*)(git_index*)>& index, std::string filepath)
+{
+    git_index_add_bypath(index.get(), filepath.c_str());
+    git_index_write(index.get());
+}
 
 /* 
  * Destructors
