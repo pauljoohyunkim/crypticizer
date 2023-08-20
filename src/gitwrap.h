@@ -21,6 +21,7 @@ so that the scope can take care of destructors in order.
 std::unique_ptr<git_repository, void(*)(git_repository*)> smart_git_repository_open(std::string repoPath);
 std::unique_ptr<git_index, void(*)(git_index*)> smart_git_repository_index(std::unique_ptr<git_repository, void(*)(git_repository*)>& repo);
 void smart_git_index_add_by_path(std::unique_ptr<git_index, void(*)(git_index*)>& index, std::string filepath);
+std::unique_ptr<git_signature, void(*)(git_signature*)> smart_git_signature_default(std::unique_ptr<git_repository, void(*)(git_repository*)>& repo);
 
 
 //void smart_git_repository_free(git_repository* repo);
