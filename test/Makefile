@@ -1,8 +1,12 @@
 CXX=g++
 CXXFLAGS=-g -Wall
+RM=rm -rf
+TEMP_GIT_REPO=temprepo
 
 backuptest: backuptest.cpp ../src/backup.cpp ../src/gitwrap.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lgit2
+	mkdir -pv $(TEMP_GIT_REPO)
+	cd $(TEMP_GIT_REPO); touch testfile; git init
 
 boxwritetest: boxwritetest.cpp ../src/session.cpp ../src/menu.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lncurses
@@ -23,4 +27,4 @@ windowtest: windowtest.cpp ../src/menu.cpp
 	$(CXX) $(CXXFLAGS) -lncurses $^ -o $@
 
 clean:
-	$(RM) *test
+	$(RM) *test $(TEMP_GIT_REPO)

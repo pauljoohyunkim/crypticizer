@@ -7,7 +7,8 @@ int main()
     git_libgit2_init();
 
     {
-        auto repo = smart_git_repository_open("..");
+        auto repo = smart_git_repository_open("temprepo");
+        auto idx = smart_git_repository_index(repo);
     }
 
     git_libgit2_shutdown();
