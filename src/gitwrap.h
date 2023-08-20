@@ -18,10 +18,12 @@ so that the scope can take care of destructors in order.
 #include <string>
 #include <git2.h>
 
-std::unique_ptr<git_repository, void(*)(git_repository*)> smart_git_repository_open(std::string repoPath);
-std::unique_ptr<git_index, void(*)(git_index*)> smart_git_repository_index(std::unique_ptr<git_repository, void(*)(git_repository*)>& repo);
-void smart_git_index_add_by_path(std::unique_ptr<git_index, void(*)(git_index*)>& index, std::string filepath);
-std::unique_ptr<git_signature, void(*)(git_signature*)> smart_git_signature_default(std::unique_ptr<git_repository, void(*)(git_repository*)>& repo);
+#define SMART_GIT_WRAP(x) std::unique_ptr<x, void(*)(x*)>
+
+SMART_GIT_WRAP(git_repository) smart_git_repository_open(std::string repoPath);
+SMART_GIT_WRAP(git_index) smart_git_repository_index(SMART_GIT_WRAP(git_repository)& repo);
+void smart_git_index_add_by_path(SMART_GIT_WRAP(git_index)& index, std::string filepath);
+SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_repository)& repo);
 
 
 //void smart_git_repository_free(git_repository* repo);
