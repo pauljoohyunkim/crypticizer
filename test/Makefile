@@ -1,6 +1,9 @@
 CXX=g++
 CXXFLAGS=-g -Wall
 
+backuptest: backuptest.cpp ../src/backup.cpp ../src/gitwrap.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lgit2
+
 boxwritetest: boxwritetest.cpp ../src/session.cpp ../src/menu.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lncurses
 
