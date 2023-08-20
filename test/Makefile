@@ -7,6 +7,8 @@ backuptest: backuptest.cpp ../src/backup.cpp ../src/gitwrap.cpp
 	$(RM) $(TEMP_GIT_REPO)
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lgit2
 	mkdir -pv $(TEMP_GIT_REPO)
+	mkdir -pv $(TEMP_GIT_REPO)/repodir
+	touch $(TEMP_GIT_REPO)/repodir/testfile{4,5}
 	cd $(TEMP_GIT_REPO); touch testfile{1,2,3}; git init
 
 boxwritetest: boxwritetest.cpp ../src/session.cpp ../src/menu.cpp
