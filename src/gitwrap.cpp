@@ -62,14 +62,6 @@ SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_rep
     auto smart_signature { SMART_GIT_WRAP(git_signature)(signature, smart_git_signature_free) };
     return smart_signature;
 }
-SMART_GIT_WRAP(git_tree) smart_git_tree_lookup(SMART_GIT_WRAP(git_repository) repo, git_oid oid)
-{
-    git_tree* tree;
-    auto error { git_tree_lookup(&tree, repo.get(), &oid) };
-
-    auto smart_tree { SMART_GIT_WRAP(git_tree)(tree, smart_git_tree_free) };
-    return smart_tree;
-}
 
 void smart_git_index_write_tree(git_oid& tree_oid, SMART_GIT_WRAP(git_index)& index)
 {
