@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <memory>
 #include <git2.h>
@@ -11,12 +12,17 @@
 static void smart_git_repository_free(git_repository* repo);
 static void smart_git_index_free(git_index* idx);
 static void smart_git_signature_free(git_signature* signature);
+static void smart_git_tree_free(git_tree* tree);
 
 /* Open git repository */
 SMART_GIT_WRAP(git_repository) smart_git_repository_open(std::string repoPath)
 {
     git_repository* repo;
     auto error { git_repository_open(&repo, repoPath.c_str()) };
+    if (error)
+    {
+        std::cerr << "smart_git_repository_open: " << error << std::endl;
+    }
 
     auto smart_repo { SMART_GIT_WRAP(git_repository)(repo, smart_git_repository_free) };
     return smart_repo;
@@ -26,6 +32,10 @@ SMART_GIT_WRAP(git_index) smart_git_repository_index(SMART_GIT_WRAP(git_reposito
 {
     git_index* idx;
     auto error { git_repository_index(&idx, repo.get()) };
+    if (error)
+    {
+        std::cerr << "smart_git_repository_index: " << error << std::endl;
+    }
 
     auto smart_index { SMART_GIT_WRAP(git_index)(idx, smart_git_index_free) };
     return smart_index;
@@ -41,14 +51,36 @@ SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_rep
 {
     git_signature* signature;
     auto error { git_signature_default(&signature, repo.get()) };
+    if (error)
+    {
+        std::cerr << "smart_git_signature_default: " << error << std::endl;
+    }
 
     auto smart_signature { SMART_GIT_WRAP(git_signature)(signature, smart_git_signature_free) };
     return smart_signature;
 }
 
-void smart_git_index_write_tree(git_oid* tree_oid, SMART_GIT_WRAP(git_index)& index)
+void smart_git_index_write_tree(git_oid& tree_oid, SMART_GIT_WRAP(git_index)& index)
 {
-    git_index_write_tree(tree_oid, index.get());
+    auto error { git_index_write_tree(&tree_oid, index.get()) };
+    if (error)
+    {
+        std::cerr << "smart_git_index_write_tree: " << error << std::endl;
+    }
+
+}
+
+SMART_GIT_WRAP(git_tree) smart_git_tree_lookup(SMART_GIT_WRAP(git_repository)& repo, git_oid& tree_oid)
+{
+    git_tree* tree;
+    auto error { git_tree_lookup(&tree, repo.get(), &tree_oid) };
+    if (error)
+    {
+        std::cerr << "smart_git_tree_lookup: " << error << std::endl;
+    }
+
+    auto smart_tree { SMART_GIT_WRAP(git_tree) (tree, smart_git_tree_free) };
+    return smart_tree;
 }
 
 
@@ -75,4 +107,8 @@ static void smart_git_index_free(git_index* idx)
 static void smart_git_signature_free(git_signature* signature)
 {
     git_signature_free(signature);
+}
+static void smart_git_tree_free(git_tree* tree)
+{
+    git_tree_free(tree);
 }
