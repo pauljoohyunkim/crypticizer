@@ -104,12 +104,30 @@ void smart_git_revparse_ext(SMART_GIT_WRAP(git_repository)& repo, SMART_GIT_WRAP
 }
 
 
-//void smart_commit(
-//    std::unique_ptr<git_repository, void (*)(git_repository *)> &repo,
-//    std::unique_ptr<git_index, void (*)(git_index *)> &index)
-//{
-//
-//}
+void smart_commit(SMART_GIT_WRAP(git_index)& index, SMART_GIT_WRAP(git_repository)& repo, SMART_GIT_WRAP(git_signature)& signature, SMART_GIT_WRAP(git_object)& parent, git_oid& tree_oid, std::string commitMessage)
+{
+    git_oid commit_oid;
+
+    smart_git_index_write_tree(tree_oid, index);
+    auto tree = smart_git_tree_lookup(repo, tree_oid);
+
+    auto error { git_commit_create_v(
+        &commit_oid,
+        repo.get(),
+        "HEAD",
+        signature.get(),
+        signature.get(),
+        NULL,
+        commitMessage.c_str(),
+        tree.get(),
+        parent.get() ? 1 : 0,
+        parent.get()
+    ) };
+    if (error)
+    {
+        std::cerr << "smart_commit: " << error << std::endl;
+    }
+}
 
 /* 
  * Destructors
