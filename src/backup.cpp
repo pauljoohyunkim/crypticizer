@@ -29,3 +29,21 @@ void Backupper::stageFiles(std::vector<std::string> filePath_v)
         stageFile(filePath);
     }
 }
+
+void Backupper::create_commit(std::string commitMessage)
+{
+    git_oid commit_oid;
+    smart_git_index_write_tree(tree_oid, index);
+    auto tree = smart_git_tree_lookup(repo, tree_oid);
+    git_commit_create_v(
+        &commit_oid,
+        repo.get(),
+        "HEAD",
+        signature.get(),
+        signature.get(),
+        NULL,
+        "test commit",
+        tree.get(),
+        parent.get() ? 1 : 0,
+        parent.get());
+}

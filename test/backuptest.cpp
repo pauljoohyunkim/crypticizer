@@ -41,6 +41,7 @@ int main(int argc, char** argv)
         backupper.stageFile("testfile1");
         backupper.stageFile("testfile2");
         backupper.stageFile("testfile3");
+        backupper.create_commit("Test commit");
     }
 
     git_libgit2_shutdown();
