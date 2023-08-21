@@ -16,6 +16,7 @@ static void smart_git_tree_free(git_tree* tree);
 static void smart_git_object_free(git_object* obj);
 static void smart_git_reference_free(git_reference* ref);
 
+
 /* Open git repository */
 SMART_GIT_WRAP(git_repository) smart_git_repository_open(std::string repoPath)
 {
@@ -61,6 +62,14 @@ SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_rep
     auto smart_signature { SMART_GIT_WRAP(git_signature)(signature, smart_git_signature_free) };
     return smart_signature;
 }
+SMART_GIT_WRAP(git_tree) smart_git_tree_lookup(SMART_GIT_WRAP(git_repository) repo, git_oid oid)
+{
+    git_tree* tree;
+    auto error { git_tree_lookup(&tree, repo.get(), &oid) };
+
+    auto smart_tree { SMART_GIT_WRAP(git_tree)(tree, smart_git_tree_free) };
+    return smart_tree;
+}
 
 void smart_git_index_write_tree(git_oid& tree_oid, SMART_GIT_WRAP(git_index)& index)
 {
@@ -103,7 +112,6 @@ void smart_git_revparse_ext(SMART_GIT_WRAP(git_repository)& repo, SMART_GIT_WRAP
     ref = SMART_GIT_WRAP(git_reference)(raw_ref, smart_git_reference_free);
 }
 
-
 void smart_commit(SMART_GIT_WRAP(git_index)& index, SMART_GIT_WRAP(git_repository)& repo, SMART_GIT_WRAP(git_signature)& signature, SMART_GIT_WRAP(git_object)& parent, git_oid& tree_oid, std::string commitMessage)
 {
     git_oid commit_oid;
@@ -128,6 +136,7 @@ void smart_commit(SMART_GIT_WRAP(git_index)& index, SMART_GIT_WRAP(git_repositor
         std::cerr << "smart_commit: " << error << std::endl;
     }
 }
+
 
 /* 
  * Destructors
