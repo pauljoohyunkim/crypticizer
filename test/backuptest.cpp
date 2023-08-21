@@ -2,12 +2,16 @@
 #include "../src/gitwrap.h"
 #include "../src/backup.h"
 
-int main()
+int main(int argc, char** argv)
 {
     git_libgit2_init();
 
     {
-        auto repo = smart_git_repository_open("temprepo");
+        auto repo = smart_git_repository_open(argv[1]);
+        SMART_GIT_WRAP(git_object) parent { nullptr, nullptr };
+        SMART_GIT_WRAP(git_reference) ref { nullptr, nullptr };
+        smart_git_revparse_ext(repo, parent, ref);
+
         auto idx = smart_git_repository_index(repo);
         auto signature = smart_git_signature_default(repo);
         git_oid commit_oid, tree_oid;
@@ -28,7 +32,8 @@ int main()
             NULL,
             "test commit",
             tree.get(),
-            0
+            parent.get() ? 1 : 0,
+            parent.get()
         );
     }
 
