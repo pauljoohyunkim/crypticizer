@@ -7,6 +7,7 @@ int main(int argc, char** argv)
     git_libgit2_init();
 
     {
+        /*
         auto repo = smart_git_repository_open(argv[1]);
         SMART_GIT_WRAP(git_object) parent { nullptr, nullptr };
         SMART_GIT_WRAP(git_reference) ref { nullptr, nullptr };
@@ -35,6 +36,12 @@ int main(int argc, char** argv)
             parent.get() ? 1 : 0,
             parent.get()
         );
+        */
+        Backupper backupper{argv[1]};
+        backupper.stageFile("testfile1");
+        backupper.stageFile("testfile2");
+        backupper.stageFile("testfile3");
+        backupper.create_commit("Test commit");
     }
 
     git_libgit2_shutdown();
