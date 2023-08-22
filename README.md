@@ -17,7 +17,7 @@ Another idea is that you would have complete control over
 who has access to which part of the diary.
 
 ## Dependencies and Compilation
-You should have **ncurses** library and **openssl** (version later than 3.0) library installed.
+You should have **ncurses** library, **libgit2** library, and **openssl** (version later than 3.0) library installed.
 ### Meson (Preferred)
 For release build:
 ```
