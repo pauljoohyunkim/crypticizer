@@ -14,6 +14,7 @@ class Backupper
         void stageFile(std::string filePath);
         void stageFiles(std::vector<std::string> filePath_v);
         void create_commit(std::string commitMessage);
+        void remote_add(std::string name, std::string url);
 
         SMART_GIT_WRAP(git_repository) repo { nullptr, nullptr };
         SMART_GIT_WRAP(git_index) index { nullptr, nullptr };

@@ -42,6 +42,7 @@ int main(int argc, char** argv)
         backupper.stageFile("testfile2");
         backupper.stageFile("testfile3");
         backupper.create_commit("Test commit");
+        backupper.remote_add("origin", "git@github.com:pauljoohyunkim/temprepo.git");
     }
 
     git_libgit2_shutdown();

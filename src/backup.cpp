@@ -47,3 +47,8 @@ void Backupper::create_commit(std::string commitMessage)
         parent.get() ? 1 : 0,
         parent.get());
 }
+
+void Backupper::remote_add(std::string name, std::string url)
+{
+    smart_git_remote_create(repo, name, url);
+}

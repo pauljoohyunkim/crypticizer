@@ -27,5 +27,7 @@ SMART_GIT_WRAP(git_signature) smart_git_signature_default(SMART_GIT_WRAP(git_rep
 void smart_git_index_write_tree(git_oid& tree_oid, SMART_GIT_WRAP(git_index)& index);
 SMART_GIT_WRAP(git_tree) smart_git_tree_lookup(SMART_GIT_WRAP(git_repository)& repo, git_oid& tree_oid);
 void smart_git_revparse_ext(SMART_GIT_WRAP(git_repository)& repo, SMART_GIT_WRAP(git_object)& parent, SMART_GIT_WRAP(git_reference)& ref);
+void smart_git_remote_set_pushurl(SMART_GIT_WRAP(git_repository)& repo, std::string remote_name, std::string url);
+SMART_GIT_WRAP(git_remote) smart_git_remote_create(SMART_GIT_WRAP(git_repository)& repo, std::string name, std::string url);
 
 #endif

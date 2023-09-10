@@ -15,6 +15,7 @@ static void smart_git_signature_free(git_signature* signature);
 static void smart_git_tree_free(git_tree* tree);
 static void smart_git_object_free(git_object* obj);
 static void smart_git_reference_free(git_reference* ref);
+static void smart_git_remote_free(git_remote* remote);
 
 
 /* Open git repository */
@@ -129,6 +130,37 @@ void smart_commit(SMART_GIT_WRAP(git_index)& index, SMART_GIT_WRAP(git_repositor
     }
 }
 
+void smart_git_remote_set_pushurl(SMART_GIT_WRAP(git_repository)& repo, std::string remote_name, std::string url)
+{
+    auto error {
+        git_remote_set_pushurl(repo.get(), remote_name.c_str(), url.c_str())
+    };
+    if (error)
+    {
+        std::cerr << "smart_git_remote_set_pushurl: " << error << std::endl;
+    }
+}
+
+SMART_GIT_WRAP(git_remote) smart_git_remote_create(SMART_GIT_WRAP(git_repository)& repo, std::string name, std::string url)
+{
+    git_remote* remote = {0};
+    auto error {
+        git_remote_create(&remote, repo.get(), name.c_str(), url.c_str())
+    };
+    if (error)
+    {
+        std::cerr << "smart_git_remote_create: " << error << std::endl;
+    }
+    auto smart_remote { SMART_GIT_WRAP(git_remote) (remote, smart_git_remote_free) };
+    return smart_remote;
+}
+
+//// https://libgit2.org/libgit2/ex/HEAD/remote.html
+//void smart_remote_add(SMART_GIT_WRAP(git_repository)& repo, std::string remote_name, std::string url)
+//{
+//    
+//}
+
 
 /* 
  * Destructors
@@ -158,4 +190,8 @@ static void smart_git_object_free(git_object* obj)
 static void smart_git_reference_free(git_reference* ref)
 {
     git_reference_free(ref);
+}
+static void smart_git_remote_free(git_remote* remote)
+{
+    git_remote_free(remote);
 }
